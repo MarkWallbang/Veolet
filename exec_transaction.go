@@ -13,9 +13,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-func SendTransaction(inputSignerAcctAddr string, inputSignerPrivateKey string, inputSignerSigner string, transactioncode []byte, arguments []cadence.Value) {
+func SendTransaction(node string, inputSignerAcctAddr string, inputSignerPrivateKey string, inputSignerSigner string, transactioncode []byte, arguments []cadence.Value, debug bool) {
 	ctx := context.Background()
-	flowClient, err := client.New("127.0.0.1:3569", grpc.WithInsecure())
+	flowClient, err := client.New(node, grpc.WithInsecure())
 	examples.Handle(err)
 
 	sigAlgo := crypto.StringToSignatureAlgorithm(inputSignerSigner)
@@ -46,16 +46,17 @@ func SendTransaction(inputSignerAcctAddr string, inputSignerPrivateKey string, i
 		err = tx.AddArgument(arguments[i])
 		examples.Handle(err)
 	}
-
-	fmt.Println("Sending transaction:")
-	fmt.Println()
-	fmt.Println("----------------")
-	fmt.Println("Script:")
-	fmt.Println(string(tx.Script))
-	fmt.Println("Arguments:")
-	fmt.Printf("greeting: %s\n", greeting)
-	fmt.Println("----------------")
-	fmt.Println()
+	if debug {
+		fmt.Println("Sending transaction:")
+		fmt.Println()
+		fmt.Println("----------------")
+		fmt.Println("Script:")
+		fmt.Println(string(tx.Script))
+		fmt.Println("Arguments:")
+		fmt.Printf("greeting: %s\n", greeting)
+		fmt.Println("----------------")
+		fmt.Println()
+	}
 
 	err = tx.SignEnvelope(addr, accountKey.Index, signer)
 	examples.Handle(err)

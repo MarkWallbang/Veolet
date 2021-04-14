@@ -23,6 +23,6 @@ func ExecuteScript(node string, script []byte, args []cadence.Value) {
 	if err != nil {
 		panic(err)
 	}
-
+	fmt.Println("User has the ID's:")
 	fmt.Println(result)
 }

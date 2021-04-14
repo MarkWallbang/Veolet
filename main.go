@@ -45,13 +45,8 @@ func main() {
 	   address := GetAddress(node, txID)
 	   fmt.Println(address)
 	*/
-	script, err := ioutil.ReadFile("cadence/scripts/Tester.cdc")
-	if err != nil {
-		panic("Cannot read script file")
-	}
-	//var arguments = nil
-	ExecuteScript(node, script, nil)
 
+	//Execute transaction to mint new token into service account
 	transactioncode, err := ioutil.ReadFile("cadence/transactions/MintToken.cdc")
 	if err != nil {
 		panic("Cannot read script file")
@@ -64,13 +59,17 @@ func main() {
 	arguments = append(arguments, cadence.NewString("Data Simon"))
 	arguments = append(arguments, cadence.NewAddress(serviceaddress))
 	arguments = append(arguments, cadence.NewUInt64(123))
-	/*var arguments []cadence.Value
-	var serviceaddress = flow.HexToAddress("f8d6e0586b0a20c7")
-	arguments = append(arguments, cadence.NewString("asdasdas"))
-	arguments = append(arguments, cadence.NewString("www.testurl.com"))
-	arguments = append(arguments, cadence.NewAddress(serviceaddress))*/
 
-	// call in the script: recipient: Address, initMediaURL: String, initCreatorName: String, initCreatorAddress: Address, initCreatedDate: UInt64
+	SendTransaction(node, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, transactioncode, arguments, false)
 
-	SendTransaction(serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, transactioncode, arguments)
+	// execute script to view tokens in given account
+	script, err := ioutil.ReadFile("cadence/scripts/FetchCollection.cdc")
+	if err != nil {
+		panic("Cannot read script file")
+	}
+	//define arguments
+	var scriptarguments []cadence.Value
+	scriptarguments = append(scriptarguments, cadence.NewAddress(serviceaddress))
+
+	ExecuteScript(node, script, scriptarguments)
 }
