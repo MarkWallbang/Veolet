@@ -3,7 +3,6 @@ package main
 // [1]
 import (
 	"context"
-	"fmt"
 
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk/client"
@@ -11,7 +10,7 @@ import (
 )
 
 // [2]
-func ExecuteScript(node string, script []byte, args []cadence.Value) {
+func ExecuteScript(node string, script []byte, args []cadence.Value) cadence.Value {
 	ctx := context.Background()
 	c, err := client.New(node, grpc.WithInsecure())
 	if err != nil {
@@ -23,6 +22,6 @@ func ExecuteScript(node string, script []byte, args []cadence.Value) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("User has the ID's:")
-	fmt.Println(result)
+
+	return result
 }

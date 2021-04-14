@@ -5,6 +5,9 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
+	"time"
+
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"github.com/onflow/flow-go-sdk/crypto"
@@ -36,11 +39,37 @@ func GenerateKeys(sigAlgoName string) (string, string) {
 	return pubKeyHex, privKeyHex
 }
 
+func CreateNewAccount(node string, serviceAddressHex string, servicePrivKeyHex string, serviceSigAlgoHex string) string {
+	sigAlgoName := "ECDSA_P256"
+	hashAlgoName := "SHA3_256"
+	pubKey, privKey := GenerateKeys("ECDSA_P256")
+	fmt.Println("Generated new KeyPair:")
+	fmt.Println("Public Key: " + pubKey)
+	fmt.Println("Private Key: " + privKey)
+
+	// [16]
+	gasLimit := uint64(100)
+
+	// [17]
+	txID := CreateAccount(node, pubKey, sigAlgoName, hashAlgoName, nil, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, gasLimit) // statt nil -> string(code)
+
+	fmt.Println("Transaction ID: " + txID)
+
+	// [18]
+	blockTime := 10 * time.Second
+	time.Sleep(blockTime)
+
+	// [19]
+	address := GetAddress(node, txID)
+	fmt.Println("New Account Address: " + address)
+
+	return address
+}
 func CreateAccount(node string,
 	publicKeyHex string,
 	sigAlgoName string,
 	hashAlgoName string,
-	code string,
+	code *string,
 	serviceAddressHex string,
 	servicePrivKeyHex string,
 	serviceSigAlgoName string,
@@ -62,12 +91,6 @@ func CreateAccount(node string,
 		SetSigAlgo(sigAlgo).
 		SetHashAlgo(hashAlgo).
 		SetWeight(flow.AccountKeyWeightThreshold)
-
-	// [5]
-	//accountCode := []byte(nil)
-	//if strings.TrimSpace(code) != "" {
-	//	accountCode = []byte(code)
-	//}
 
 	// [6]
 	c, err := client.New(node, grpc.WithInsecure())
@@ -91,11 +114,11 @@ func CreateAccount(node string,
 	serviceAccountKey := serviceAccount.Keys[0]
 	serviceSigner := crypto.NewInMemorySigner(servicePrivKey, serviceAccountKey.HashAlgo)
 
-	// [8]
-	tx := templates.CreateAccount([]*flow.AccountKey{accountKey}, []templates.Contract{{
-		Name:   "HelloWorld",
-		Source: code,
-	}}, serviceAddress)
+	// [8] für contract statt nil -> []templates.Contract{{
+	//Name:   "HelloWorld",
+	//Source: code,
+	//}}
+	tx := templates.CreateAccount([]*flow.AccountKey{accountKey}, nil, serviceAddress)
 	tx.SetProposalKey(serviceAddress, serviceAccountKey.Index, serviceAccountKey.SequenceNumber)
 	tx.SetPayer(serviceAddress)
 	tx.SetGasLimit(uint64(gasLimit))
@@ -153,5 +176,3 @@ func GetAddress(node string, txIDHex string) string {
 	// [14]
 	return address.Hex()
 }
-
-// [5]

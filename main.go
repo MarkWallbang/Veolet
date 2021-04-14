@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"github.com/onflow/cadence"
@@ -8,9 +9,6 @@ import (
 )
 
 func main() {
-	//pubKey, privKey := GenerateKeys("ECDSA_P256")
-	//fmt.Println(pubKey)
-	//fmt.Println(privKey)
 
 	// [15]
 	node := "127.0.0.1:3569"
@@ -18,33 +16,10 @@ func main() {
 	serviceAddressHex := "f8d6e0586b0a20c7"
 	servicePrivKeyHex := "e010314865d947dac99d5e7c3d81b442ba1a4550ebc20ced1e2adb7dd6a053b1"
 	serviceSigAlgoHex := "ECDSA_P256"
-	/*
-	   sigAlgoName := "ECDSA_P256"
-	   hashAlgoName := "SHA3_256"
 
-	   code,err := ioutil.ReadFile("HelloWorldContract.cdc")
-	   if err != nil{
-	   panic("failed to load Cadence script")
-	   }
-
-
-
-	   // [16]
-	   gasLimit := uint64(100)
-
-	   // [17]
-	   txID := CreateAccount(node, pubKey, sigAlgoName, hashAlgoName, string(code), serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, gasLimit)
-
-	   fmt.Println(txID)
-
-	   // [18]
-	   blockTime := 10 * time.Second
-	   time.Sleep(blockTime)
-
-	   // [19]
-	   address := GetAddress(node, txID)
-	   fmt.Println(address)
-	*/
+	// Create new account using the service account as signer/payer
+	newAddress := CreateNewAccount(node, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex)
+	fmt.Println("Got new account address: " + newAddress)
 
 	//Execute transaction to mint new token into service account
 	transactioncode, err := ioutil.ReadFile("cadence/transactions/MintToken.cdc")
@@ -71,5 +46,6 @@ func main() {
 	var scriptarguments []cadence.Value
 	scriptarguments = append(scriptarguments, cadence.NewAddress(serviceaddress))
 
-	ExecuteScript(node, script, scriptarguments)
+	result := ExecuteScript(node, script, scriptarguments)
+	fmt.Print(result)
 }
