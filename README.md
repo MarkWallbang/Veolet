@@ -22,3 +22,8 @@ In order to run a script from the CLI, use the following command:
 ```
 flow scripts execute --code=cadence\scripts\Filename.cdc
 ```
+
+### Script with arguments
+```
+flow scripts execute --code=cadence\scripts\Tester.cdc --args="[{\"type\":\"String\", \"value\": \"Test\"}]"
+```
