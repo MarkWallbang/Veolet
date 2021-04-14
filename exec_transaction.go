@@ -42,10 +42,13 @@ func SendTransaction(node string, inputSignerAcctAddr string, inputSignerPrivate
 		SetPayer(addr).
 		AddAuthorizer(addr)
 
-	for i := 0; i < len(arguments); i++ {
-		err = tx.AddArgument(arguments[i])
-		examples.Handle(err)
+	if arguments != nil {
+		for i := 0; i < len(arguments); i++ {
+			err = tx.AddArgument(arguments[i])
+			examples.Handle(err)
+		}
 	}
+
 	if debug {
 		fmt.Println("Sending transaction:")
 		fmt.Println()

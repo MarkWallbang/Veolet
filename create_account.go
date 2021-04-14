@@ -39,7 +39,7 @@ func GenerateKeys(sigAlgoName string) (string, string) {
 	return pubKeyHex, privKeyHex
 }
 
-func CreateNewAccount(node string, serviceAddressHex string, servicePrivKeyHex string, serviceSigAlgoHex string) string {
+func CreateNewAccount(node string, serviceAddressHex string, servicePrivKeyHex string, serviceSigAlgoHex string) (string, string, string) {
 	sigAlgoName := "ECDSA_P256"
 	hashAlgoName := "SHA3_256"
 	pubKey, privKey := GenerateKeys("ECDSA_P256")
@@ -56,14 +56,14 @@ func CreateNewAccount(node string, serviceAddressHex string, servicePrivKeyHex s
 	fmt.Println("Transaction ID: " + txID)
 
 	// [18]
-	blockTime := 10 * time.Second
+	blockTime := 5 * time.Second
 	time.Sleep(blockTime)
 
 	// [19]
 	address := GetAddress(node, txID)
 	fmt.Println("New Account Address: " + address)
 
-	return address
+	return address, pubKey, privKey
 }
 func CreateAccount(node string,
 	publicKeyHex string,

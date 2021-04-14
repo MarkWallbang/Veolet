@@ -18,8 +18,17 @@ func main() {
 	serviceSigAlgoHex := "ECDSA_P256"
 
 	// Create new account using the service account as signer/payer
-	newAddress := CreateNewAccount(node, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex)
+	newAddress, newPubKey, newPrivKey := CreateNewAccount(node, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex)
 	fmt.Println("Got new account address: " + newAddress)
+	fmt.Println("With public key: " + newPubKey)
+	fmt.Println("With private key: " + newPrivKey)
+
+	//Setup Veolet wallet for the new created account
+	setupcode, err := ioutil.ReadFile("cadence/transactions/SetupAccount.cdc")
+	if err != nil {
+		panic("Cannot read script file")
+	}
+	SendTransaction(node, newAddress, newPrivKey, serviceSigAlgoHex, setupcode, nil, false)
 
 	//Execute transaction to mint new token into service account
 	transactioncode, err := ioutil.ReadFile("cadence/transactions/MintToken.cdc")
