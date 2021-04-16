@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -12,6 +13,9 @@ import (
 )
 
 func main() {
+
+	runtimeenv := flag.String("env", "emulator", "In which environment to run the program. emulator/testnet/mainnet")
+	fmt.Println("Running program on " + *runtimeenv)
 
 	// Read configurations
 	// TODO need to adapt based on enviroment

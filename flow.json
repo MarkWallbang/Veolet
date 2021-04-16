@@ -6,12 +6,7 @@
 		}
 	},
 	"contracts": {
-		"NonFungibleToken": {
-			"source": "./cadence/contracts/NonFungibleToken.cdc",
-			"aliases": {
-			  "testnet": "0x631e88ae7f1d7c20"
-			}
-		  },
+		"NonFungibleToken":"./cadence/contracts/NonFungibleToken.cdc" ,
       		"Veolet": "./cadence/contracts/Veolet.cdc"
 	},
 	"networks": {
