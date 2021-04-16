@@ -9,7 +9,7 @@ transaction {
     prepare(acct: AuthAccount) {
 
         // Return early if the account already has a collection
-        if acct.borrow<&Veolet.Collection>(from: /storage/NFTCollection) != nil {
+        if acct.borrow<&Veolet.Collection>(from: /storage/VeoletCollection) != nil {
             return
         }
 
@@ -17,12 +17,12 @@ transaction {
         let collection <- Veolet.createEmptyCollection()
 
         // save it to the account
-        acct.save(<-collection, to: /storage/NFTCollection)
+        acct.save(<-collection, to: /storage/VeoletCollection)
 
         // create a public capability for the collection
         acct.link<&{NonFungibleToken.CollectionPublic}>(
-            /public/NFTCollection,
-            target: /storage/NFTCollection
+            /public/VeoletCollection,
+            target: /storage/VeoletCollection
         )
     }
 }

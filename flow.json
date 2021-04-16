@@ -6,13 +6,22 @@
 		}
 	},
 	"contracts": {
-		"NonFungibleToken": "./cadence/contracts/NonFungibleToken.cdc",
+		"NonFungibleToken": {
+			"source": "./cadence/contracts/NonFungibleToken.cdc",
+			"aliases": {
+			  "testnet": "0x631e88ae7f1d7c20"
+			}
+		  },
       		"Veolet": "./cadence/contracts/Veolet.cdc"
 	},
 	"networks": {
 		"emulator": {
 			"host": "127.0.0.1:3569",
 			"chain": "flow-emulator"
+		},
+		"testnet": {
+			"host": "access.testnet.nodes.onflow.org:9000",
+      		"chain": "flow-testnet"
 		}
 	},
 	"accounts": {
@@ -20,6 +29,11 @@
 			"address": "f8d6e0586b0a20c7",
 			"keys": "e010314865d947dac99d5e7c3d81b442ba1a4550ebc20ced1e2adb7dd6a053b1",
 			"chain": "flow-emulator"
+		},
+		"testnet-account": {
+			"address": "5c9fd048deb56cd4",
+			"keys": "f033cf4474f48d13158c8fa12a793aba30c204a48d400fcd4f13158f577b26b2",
+			"chain": "flow-testnet"
 		}
 	},
 	"deployments": {
@@ -28,6 +42,12 @@
             		"NonFungibleToken",
             		"Veolet"
          		]
-      		}
+      		},
+			  "testnet": {
+				"testnet-account": [
+				  "NonFungibleToken",
+				  "Veolet"
+				]
+			  }
 	}
 }

@@ -1,4 +1,4 @@
-import NonFungibleToken from 0xf8d6e0586b0a20c7
+import NonFungibleToken from "./NonFungibleToken.cdc"//0xf8d6e0586b0a20c7
 
 pub contract Veolet: NonFungibleToken {
     pub var totalSupply: UInt64
@@ -114,12 +114,12 @@ pub contract Veolet: NonFungibleToken {
 
         // Create a Collection resource and save it to storage
         let collection <- create Collection()
-        self.account.save(<-collection, to: /storage/NFTCollection)
+        self.account.save(<-collection, to: /storage/VeoletCollection)
 
         // create a public capability for the collection
         self.account.link<&{NonFungibleToken.CollectionPublic}>(
-            /public/NFTCollection,
-            target: /storage/NFTCollection
+            /public/VeoletCollection,
+            target: /storage/VeoletCollection
         )
 
         // Create a Minter resource and save it to storage

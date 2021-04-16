@@ -20,7 +20,7 @@ transaction(recipient: Address, initMediaURL: String, initCreatorName: String, i
     execute {
         // Borrow the recipient's public NFT collection reference
         let receiver = getAccount(recipient)
-            .getCapability(/public/NFTCollection)
+            .getCapability(/public/VeoletCollection)
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not get receiver reference to the NFT Collection")
 
