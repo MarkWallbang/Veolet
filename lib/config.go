@@ -7,6 +7,7 @@ type Configuration struct {
 	ServicePrivKeyHex string `json:"servicePrivKeyHex"`
 	ServiceSigAlgoHex string `json:"serviceSigAlgoHex"`
 }
+<<<<<<< HEAD
 
 type Configuration_flow struct {
 	Emulators struct {
@@ -57,3 +58,5 @@ type Configuration_flow struct {
 		} `json:"testnet"`
 	} `json:"deployments"`
 }
+=======
+>>>>>>> 0cb4b8ad0f0f5ff48ae5076dc191f3c735a40f2c
