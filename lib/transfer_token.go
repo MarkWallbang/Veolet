@@ -7,9 +7,8 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
-func TransferToken(configuration Configuration, senderHex string, senderPrivKeyHex string, recipientHex string, tokenID uint64) {
+func TransferToken(node string, senderHex string, senderPrivKeyHex string, recipientHex string, tokenID uint64) {
 	// get config
-	node := configuration.Node
 	sigAlgoName := "ECDSA_P256"
 
 	//Read transaction code

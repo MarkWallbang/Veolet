@@ -8,13 +8,24 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
-func MintToken(configuration Configuration, recipient flow.Address, URL string, creatorName string, creatorAddress flow.Address) {
+func MintToken(configuration Configuration, runtimeenv string, recipient flow.Address, URL string, creatorName string, creatorAddress flow.Address) {
 
 	// get config
-	node := configuration.Node
-	serviceAddressHex := configuration.ServiceAddressHex
-	servicePrivKeyHex := configuration.ServicePrivKeyHex
-	serviceSigAlgoHex := configuration.ServiceSigAlgoHex
+	var node string
+	var serviceAddressHex string
+	var servicePrivKeyHex string
+	var serviceSigAlgoHex string
+	if runtimeenv == "emulator" {
+		node = configuration.Networks.Emulator.Host
+		serviceAddressHex = configuration.Accounts.Emulator_account.Address
+		servicePrivKeyHex = configuration.Accounts.Emulator_account.Keys
+		serviceSigAlgoHex = "ECDSA_P256"
+	} else if runtimeenv == "testnet" {
+		node = configuration.Networks.Testnet.Host
+		serviceAddressHex = configuration.Accounts.Testnet_account.Address
+		servicePrivKeyHex = configuration.Accounts.Testnet_account.Keys
+		serviceSigAlgoHex = "ECDSA_P256"
+	}
 
 	// creation timestamp
 	var timestamp = uint64(time.Now().Unix())

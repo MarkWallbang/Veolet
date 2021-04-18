@@ -1,15 +1,7 @@
 package lib
 
-// TODO change this to read flow.json -> make all imports in cdc scripts/transactions dynamic
+// structure of flow.json config
 type Configuration struct {
-	Node              string `json:"node"`
-	ServiceAddressHex string `json:"serviceAddressHex"`
-	ServicePrivKeyHex string `json:"servicePrivKeyHex"`
-	ServiceSigAlgoHex string `json:"serviceSigAlgoHex"`
-}
-<<<<<<< HEAD
-
-type Configuration_flow struct {
 	Emulators struct {
 		Default struct {
 			Port           int    `json:"port"`
@@ -58,5 +50,3 @@ type Configuration_flow struct {
 		} `json:"testnet"`
 	} `json:"deployments"`
 }
-=======
->>>>>>> 0cb4b8ad0f0f5ff48ae5076dc191f3c735a40f2c

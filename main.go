@@ -20,16 +20,28 @@ func main() {
 	// Read configurations
 	// TODO need to adapt based on enviroment
 	// -> then also the import adresses of the scripts and transactions need to be adapted
-	file, _ := os.Open("config.json")
+	file, _ := os.Open("flow.json")
 	defer file.Close()
 	byteFile, _ := ioutil.ReadAll(file)
 	var configuration lib.Configuration
 	json.Unmarshal(byteFile, &configuration)
 
-	node := configuration.Node
-	serviceAddressHex := configuration.ServiceAddressHex
-	servicePrivKeyHex := configuration.ServicePrivKeyHex
-	serviceSigAlgoHex := configuration.ServiceSigAlgoHex
+	var node string
+	var serviceAddressHex string
+	var servicePrivKeyHex string
+	var serviceSigAlgoHex string
+	if *runtimeenv == "emulator" {
+		node = configuration.Networks.Emulator.Host
+		serviceAddressHex = configuration.Accounts.Emulator_account.Address
+		servicePrivKeyHex = configuration.Accounts.Emulator_account.Keys
+		serviceSigAlgoHex = "ECDSA_P256"
+	} else if *runtimeenv == "testnet" {
+		node = configuration.Networks.Testnet.Host
+		serviceAddressHex = configuration.Accounts.Testnet_account.Address
+		servicePrivKeyHex = configuration.Accounts.Testnet_account.Keys
+		serviceSigAlgoHex = "ECDSA_P256"
+	}
+
 	var serviceaddress = flow.HexToAddress(serviceAddressHex)
 
 	// Create new account using the service account as signer/payer
@@ -39,7 +51,7 @@ func main() {
 	fmt.Println("With private key: " + newPrivKey)
 
 	// mint new token to service account wallet
-	lib.MintToken(configuration, serviceaddress, "test.com", "Creator Name", serviceaddress)
+	lib.MintToken(configuration, *runtimeenv, serviceaddress, "test.com", "Creator Name", serviceaddress)
 
 	// execute script to view tokens in given account
 	script, err := ioutil.ReadFile("cadence/scripts/FetchCollection.cdc")
@@ -55,7 +67,7 @@ func main() {
 	fmt.Println(result)
 
 	//transfer tokens from account 1 to the newly created account
-	lib.TransferToken(configuration, serviceAddressHex, servicePrivKeyHex, newAddress, 0)
+	lib.TransferToken(node, serviceAddressHex, servicePrivKeyHex, newAddress, 0)
 
 	// Print the token stash of both accounts to verify that transfer worked
 	result = lib.ExecuteScript(node, script, scriptarguments)
