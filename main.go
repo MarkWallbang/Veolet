@@ -79,4 +79,16 @@ func main() {
 	fmt.Print("Token stash of new address: ")
 	fmt.Println(result)
 
+	// finally use script to gather all fields of given NFT ID
+	readscript, err := ioutil.ReadFile("cadence/scripts/ReadNFT.cdc")
+	if err != nil {
+		panic("Cannot read script file")
+	}
+
+	var readarguments []cadence.Value
+	readarguments = append(readarguments, cadence.NewAddress(flow.HexToAddress(newAddress)))
+	readarguments = append(readarguments, cadence.NewUInt64(0))
+	result = lib.ExecuteScript(node, readscript, readarguments)
+	fmt.Print("Information of token 0: ")
+	fmt.Println(result)
 }

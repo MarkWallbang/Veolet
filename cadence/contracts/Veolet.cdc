@@ -26,8 +26,20 @@ pub contract Veolet: NonFungibleToken {
             self.currentMediaURL = initMediaURL
         }
     }
-
-    pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
+    pub resource interface VeoletGetter {
+        pub fun deposit(token: @NonFungibleToken.NFT)
+        pub fun getIDs(): [UInt64]
+        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+        pub fun borrowVeoletRef(id: UInt64): &Veolet.NFT? {
+            // If the result isn't nil, the id of the returned reference
+            // should be the same as the argument to the function
+            post {
+                (result == nil) || (result?.id == id):
+                    "Cannot borrow NFT reference: The ID of the returned reference is incorrect"
+            }
+        }
+    } 
+    pub resource Collection: VeoletGetter, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
@@ -79,6 +91,15 @@ pub contract Veolet: NonFungibleToken {
             return &self.ownedNFTs[id] as &NonFungibleToken.NFT
         }
 
+       pub fun borrowVeoletRef(id: UInt64): &Veolet.NFT? {
+            if self.ownedNFTs[id] != nil {
+                let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
+                return ref as! &Veolet.NFT
+            } else {
+                return nil
+            }
+        }
+
         destroy() {
             destroy self.ownedNFTs
         }
@@ -117,7 +138,7 @@ pub contract Veolet: NonFungibleToken {
         self.account.save(<-collection, to: /storage/VeoletCollection)
 
         // create a public capability for the collection
-        self.account.link<&{NonFungibleToken.CollectionPublic}>(
+        self.account.link<&Veolet.Collection{NonFungibleToken.CollectionPublic, Veolet.VeoletGetter}>(
             /public/VeoletCollection,
             target: /storage/VeoletCollection
         )

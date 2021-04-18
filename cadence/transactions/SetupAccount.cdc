@@ -10,6 +10,7 @@ transaction {
 
         // Return early if the account already has a collection
         if acct.borrow<&Veolet.Collection>(from: /storage/VeoletCollection) != nil {
+            log("already created Account")
             return
         }
 
@@ -20,9 +21,10 @@ transaction {
         acct.save(<-collection, to: /storage/VeoletCollection)
 
         // create a public capability for the collection
-        acct.link<&{NonFungibleToken.CollectionPublic}>(
+        acct.link<&Veolet.Collection{NonFungibleToken.CollectionPublic, Veolet.VeoletGetter}>(
             /public/VeoletCollection,
             target: /storage/VeoletCollection
         )
+        log("Set up new Account")
     }
 }
