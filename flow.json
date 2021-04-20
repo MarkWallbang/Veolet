@@ -33,16 +33,29 @@
 	},
 	"deployments": {
 		"emulator":{
-         		"emulator-account":[
-            		"NonFungibleToken",
-            		"Veolet"
-         		]
-      		},
-			  "testnet": {
-				"testnet-account": [
-				  "NonFungibleToken",
-				  "Veolet"
-				]
-			  }
+			"emulator-account":[
+				"NonFungibleToken",
+				"Veolet"
+			]
+      	},
+		"testnet": {
+			"testnet-account": [
+				"Veolet"
+			]
+		}
+	},
+	"contractaddresses":{
+		"emulator":{
+			"NonFungibleToken": "f8d6e0586b0a20c7",
+			"Veolet": "f8d6e0586b0a20c7",
+			"FungibleToken": "ee82856bf20e2aa6",
+			"FlowToken": "0ae53cb6e3f42a79"
+		},
+		"testnet":{
+			"NonFungibleToken": "631e88ae7f1d7c20",
+			"Veolet": "5c9fd048deb56cd4",
+			"FungibleToken": "9a0766d93b6608b7",
+			"FlowToken": "7e60df042a9c0868"
+		}
 	}
 }

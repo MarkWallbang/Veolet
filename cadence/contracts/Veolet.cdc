@@ -1,4 +1,4 @@
-import NonFungibleToken from "./NonFungibleToken.cdc"
+import NonFungibleToken from 0xNONFUNGIBLETOKEN//"./NonFungibleToken.cdc"
 
 pub contract Veolet: NonFungibleToken {
     pub var totalSupply: UInt64
@@ -13,15 +13,21 @@ pub contract Veolet: NonFungibleToken {
         pub let creatorAddress: Address
         pub let creatorName: String
         pub let createdDate: UInt64
+        pub let caption: String
+        pub let hash: String
+        pub let edition: UInt16
 
         pub(set) var currentMediaURL: String
 
-        init(initID: UInt64,initMediaURL: String, initCreatorName: String, initCreatorAddress: Address, initCreatedDate: UInt64) {
+        init(initID: UInt64,initMediaURL: String, initCreatorName: String, initCreatorAddress: Address, initCreatedDate: UInt64, initCaption: String, initHash: String, initEdition: UInt16) {
             self.id = initID
             self.originalMediaURL = initMediaURL
             self.creatorAddress = initCreatorAddress
             self.creatorName = initCreatorName
             self.createdDate = initCreatedDate
+            self.caption = initCaption
+            self.hash = initHash
+            self.edition = initEdition
 
             self.currentMediaURL = initMediaURL
         }
@@ -117,10 +123,10 @@ pub contract Veolet: NonFungibleToken {
 
 		// mintNFT mints a new NFT with a new ID
 		// and deposit it in the recipients collection using their collection reference
-		pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic},initMediaURL: String, initCreatorName: String, initCreatorAddress: Address, initCreatedDate: UInt64 ) {
+		pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic},initMediaURL: String, initCreatorName: String, initCreatorAddress: Address, initCreatedDate: UInt64, initCaption: String, initHash: String, initEdition:UInt16 ) {
 
 			// create a new NFT
-			var newNFT <- create NFT(initID: Veolet.totalSupply,initMediaURL: initMediaURL, initCreatorName: initCreatorName, initCreatorAddress: initCreatorAddress, initCreatedDate: initCreatedDate )
+			var newNFT <- create NFT(initID: Veolet.totalSupply,initMediaURL: initMediaURL, initCreatorName: initCreatorName, initCreatorAddress: initCreatorAddress, initCreatedDate: initCreatedDate, initCaption: initCaption, initHash: initHash,initEdition:initEdition )
 
 			// deposit it in the recipient's account using their reference
 			recipient.deposit(token: <-newNFT)

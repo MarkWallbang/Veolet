@@ -1,5 +1,5 @@
-import NonFungibleToken from 0xf8d6e0586b0a20c7
-import Veolet from 0xf8d6e0586b0a20c7
+import NonFungibleToken from 0xNONFUNGIBLETOKEN//0xf8d6e0586b0a20c7
+import Veolet from 0xVEOLET//0xf8d6e0586b0a20c7
 
 // This script reads metadata about an NFT in a user's collection
 pub fun main(account: Address, id: UInt64):  &Veolet.NFT? {

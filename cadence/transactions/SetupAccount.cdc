@@ -1,6 +1,5 @@
-
-import Veolet from 0xf8d6e0586b0a20c7
-import NonFungibleToken from 0xf8d6e0586b0a20c7
+import Veolet from 0xVEOLET//0xf8d6e0586b0a20c7
+import NonFungibleToken from 0xNONFUNGIBLETOKEN//0xf8d6e0586b0a20c7
 // This transaction configures a user's account
 
 // to use the NFT contract by creating a new empty collection,

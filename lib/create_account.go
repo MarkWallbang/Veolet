@@ -40,10 +40,33 @@ func GenerateKeys(sigAlgoName string) (string, string) {
 	return pubKeyHex, privKeyHex
 }
 
-func CreateNewAccount(node string, serviceAddressHex string, servicePrivKeyHex string, serviceSigAlgoHex string) (string, string, string) {
+func CreateNewAccount(configuration Configuration, runtimeenv string) (string, string, string) {
 	sigAlgoName := "ECDSA_P256"
 	hashAlgoName := "SHA3_256"
 	pubKey, privKey := GenerateKeys("ECDSA_P256")
+
+	// get config
+	var node string
+	var serviceAddressHex string
+	var servicePrivKeyHex string
+	var serviceSigAlgoHex string
+	var NFTContractAddress string
+	var VeoletContractAddress string
+	if runtimeenv == "emulator" {
+		node = configuration.Networks.Emulator.Host
+		serviceAddressHex = configuration.Accounts.Emulator_account.Address
+		servicePrivKeyHex = configuration.Accounts.Emulator_account.Keys
+		serviceSigAlgoHex = "ECDSA_P256"
+		NFTContractAddress = configuration.Contractaddresses.Emulator.NonFungibleToken
+		VeoletContractAddress = configuration.Contractaddresses.Emulator.Veolet
+	} else if runtimeenv == "testnet" {
+		node = configuration.Networks.Testnet.Host
+		serviceAddressHex = configuration.Accounts.Testnet_account.Address
+		servicePrivKeyHex = configuration.Accounts.Testnet_account.Keys
+		serviceSigAlgoHex = "ECDSA_P256"
+		NFTContractAddress = configuration.Contractaddresses.Testnet.NonFungibleToken
+		VeoletContractAddress = configuration.Contractaddresses.Testnet.Veolet
+	}
 
 	// [16]
 	gasLimit := uint64(100)
@@ -51,21 +74,23 @@ func CreateNewAccount(node string, serviceAddressHex string, servicePrivKeyHex s
 	// [17]
 	txID := CreateAccount(node, pubKey, sigAlgoName, hashAlgoName, nil, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, gasLimit) // statt nil -> string(code)
 
-	fmt.Println("Transaction ID: " + txID)
-
 	// [18]
-	blockTime := 5 * time.Second
-	time.Sleep(blockTime)
+	//blockTime := 3 * time.Second
+	//time.Sleep(blockTime)
 
 	// [19]
 	address := GetAddress(node, txID)
 	fmt.Println("New Account Address: " + address)
 
 	//Setup Veolet wallet for the new created account
+	// 1. Read transaction script
 	setupcode, err := ioutil.ReadFile("cadence/transactions/SetupAccount.cdc")
 	if err != nil {
 		panic("Cannot read script file")
 	}
+	// 2. Replace placeholder addresses
+	setupcode = ReplaceAddressPlaceholders(setupcode, NFTContractAddress, VeoletContractAddress, "", "")
+
 	SendTransaction(node, address, privKey, serviceSigAlgoHex, setupcode, nil, false)
 
 	return address, pubKey, privKey
@@ -119,10 +144,6 @@ func CreateAccount(node string,
 	serviceAccountKey := serviceAccount.Keys[0]
 	serviceSigner := crypto.NewInMemorySigner(servicePrivKey, serviceAccountKey.HashAlgo)
 
-	// [8] für contract statt nil -> []templates.Contract{{
-	//Name:   "HelloWorld",
-	//Source: code,
-	//}}
 	tx := templates.CreateAccount([]*flow.AccountKey{accountKey}, nil, serviceAddress)
 	tx.SetProposalKey(serviceAddress, serviceAccountKey.Index, serviceAccountKey.SequenceNumber)
 	tx.SetPayer(serviceAddress)
@@ -161,20 +182,23 @@ func GetAddress(node string, txIDHex string) string {
 
 	// [12]
 	txID := flow.HexToID(txIDHex)
-	result, err := c.GetTransactionResult(ctx, txID)
-	if err != nil {
-		panic("failed to get transaction result")
-	}
 
-	// [13]
 	var address flow.Address
-
-	if result.Status == flow.TransactionStatusSealed {
-		for _, event := range result.Events {
-			if event.Type == flow.EventAccountCreated {
-				accountCreatedEvent := flow.AccountCreatedEvent(event)
-				address = accountCreatedEvent.Address()
+	for true {
+		result, err := c.GetTransactionResult(ctx, txID)
+		if err != nil {
+			panic("failed to get transaction result")
+		}
+		if result.Status == flow.TransactionStatusSealed {
+			for _, event := range result.Events {
+				if event.Type == flow.EventAccountCreated {
+					accountCreatedEvent := flow.AccountCreatedEvent(event)
+					address = accountCreatedEvent.Address()
+				}
 			}
+			break
+		} else {
+			time.Sleep(time.Second)
 		}
 	}
 

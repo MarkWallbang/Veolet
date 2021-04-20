@@ -49,4 +49,19 @@ type Configuration struct {
 			Testnet_account []string `json:"testnet-account"`
 		} `json:"testnet"`
 	} `json:"deployments"`
+
+	Contractaddresses struct {
+		Emulator struct {
+			NonFungibleToken string `json:"NonFungibleToken"`
+			Veolet           string `json:"Veolet"`
+			FungibleToken    string `json:"FungibleToken"`
+			FlowToken        string `json:"FlowToken"`
+		} `json:"emulator"`
+		Testnet struct {
+			NonFungibleToken string `json:"NonFungibleToken"`
+			Veolet           string `json:"Veolet"`
+			FungibleToken    string `json:"FungibleToken"`
+			FlowToken        string `json:"FlowToken"`
+		} `json:"testnet"`
+	} `json:"contractaddresses"`
 }

@@ -7,8 +7,20 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
-func TransferToken(node string, senderHex string, senderPrivKeyHex string, recipientHex string, tokenID uint64) {
+func TransferToken(configuration Configuration, runtimeenv string, senderHex string, senderPrivKeyHex string, recipientHex string, tokenID uint64) {
 	// get config
+	var node string
+	var NFTContractAddress string
+	var VeoletContractAddress string
+	if runtimeenv == "emulator" {
+		node = configuration.Networks.Emulator.Host
+		NFTContractAddress = configuration.Contractaddresses.Emulator.NonFungibleToken
+		VeoletContractAddress = configuration.Contractaddresses.Emulator.Veolet
+	} else if runtimeenv == "testnet" {
+		node = configuration.Networks.Testnet.Host
+		NFTContractAddress = configuration.Contractaddresses.Testnet.NonFungibleToken
+		VeoletContractAddress = configuration.Contractaddresses.Testnet.Veolet
+	}
 	sigAlgoName := "ECDSA_P256"
 
 	//Read transaction code
@@ -16,6 +28,9 @@ func TransferToken(node string, senderHex string, senderPrivKeyHex string, recip
 	if err != nil {
 		panic("Cannot read script file")
 	}
+
+	// Change placeholder address in script import
+	transactioncode = ReplaceAddressPlaceholders(transactioncode, NFTContractAddress, VeoletContractAddress, "", "")
 
 	//define arguments
 	var arguments []cadence.Value
