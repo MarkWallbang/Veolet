@@ -45,38 +45,18 @@ func CreateNewAccount(configuration Configuration, runtimeenv string) (string, s
 	hashAlgoName := "SHA3_256"
 	pubKey, privKey := GenerateKeys("ECDSA_P256")
 
-	// get config
-	var node string
-	var serviceAddressHex string
-	var servicePrivKeyHex string
-	var serviceSigAlgoHex string
-	var NFTContractAddress string
-	var VeoletContractAddress string
-	if runtimeenv == "emulator" {
-		node = configuration.Networks.Emulator.Host
-		serviceAddressHex = configuration.Accounts.Emulator_account.Address
-		servicePrivKeyHex = configuration.Accounts.Emulator_account.Keys
-		serviceSigAlgoHex = "ECDSA_P256"
-		NFTContractAddress = configuration.Contractaddresses.Emulator.NonFungibleToken
-		VeoletContractAddress = configuration.Contractaddresses.Emulator.Veolet
-	} else if runtimeenv == "testnet" {
-		node = configuration.Networks.Testnet.Host
-		serviceAddressHex = configuration.Accounts.Testnet_account.Address
-		servicePrivKeyHex = configuration.Accounts.Testnet_account.Keys
-		serviceSigAlgoHex = "ECDSA_P256"
-		NFTContractAddress = configuration.Contractaddresses.Testnet.NonFungibleToken
-		VeoletContractAddress = configuration.Contractaddresses.Testnet.Veolet
-	}
+	node := configuration.Network.Host
+	serviceAddressHex := configuration.Account.Address
+	servicePrivKeyHex := configuration.Account.Keys
+	serviceSigAlgoHex := "ECDSA_P256"
+	NFTContractAddress := configuration.Contractaddresses.NonFungibleToken
+	VeoletContractAddress := configuration.Contractaddresses.Veolet
 
 	// [16]
 	gasLimit := uint64(100)
 
 	// [17]
 	txID := CreateAccount(node, pubKey, sigAlgoName, hashAlgoName, nil, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, gasLimit) // statt nil -> string(code)
-
-	// [18]
-	//blockTime := 3 * time.Second
-	//time.Sleep(blockTime)
 
 	// [19]
 	address := GetAddress(node, txID)
@@ -91,7 +71,10 @@ func CreateNewAccount(configuration Configuration, runtimeenv string) (string, s
 	// 2. Replace placeholder addresses
 	setupcode = ReplaceAddressPlaceholders(setupcode, NFTContractAddress, VeoletContractAddress, "", "")
 
-	SendTransaction(node, address, privKey, serviceSigAlgoHex, setupcode, nil, false)
+	result := SendTransaction(node, address, privKey, serviceSigAlgoHex, setupcode, nil, false)
+	if result.Error != nil {
+		panic("Setup account failed")
+	}
 
 	return address, pubKey, privKey
 }

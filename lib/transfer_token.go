@@ -7,20 +7,9 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
-func TransferToken(configuration Configuration, runtimeenv string, senderHex string, senderPrivKeyHex string, recipientHex string, tokenID uint64) {
-	// get config
-	var node string
-	var NFTContractAddress string
-	var VeoletContractAddress string
-	if runtimeenv == "emulator" {
-		node = configuration.Networks.Emulator.Host
-		NFTContractAddress = configuration.Contractaddresses.Emulator.NonFungibleToken
-		VeoletContractAddress = configuration.Contractaddresses.Emulator.Veolet
-	} else if runtimeenv == "testnet" {
-		node = configuration.Networks.Testnet.Host
-		NFTContractAddress = configuration.Contractaddresses.Testnet.NonFungibleToken
-		VeoletContractAddress = configuration.Contractaddresses.Testnet.Veolet
-	}
+func TransferToken(configuration Configuration, runtimeenv string, senderHex string, senderPrivKeyHex string, recipientHex string, tokenID uint64) *flow.TransactionResult {
+
+	// constants
 	sigAlgoName := "ECDSA_P256"
 
 	//Read transaction code
@@ -30,7 +19,7 @@ func TransferToken(configuration Configuration, runtimeenv string, senderHex str
 	}
 
 	// Change placeholder address in script import
-	transactioncode = ReplaceAddressPlaceholders(transactioncode, NFTContractAddress, VeoletContractAddress, "", "")
+	transactioncode = ReplaceAddressPlaceholders(transactioncode, configuration.Contractaddresses.NonFungibleToken, configuration.Contractaddresses.Veolet, "", "")
 
 	//define arguments
 	var arguments []cadence.Value
@@ -38,5 +27,6 @@ func TransferToken(configuration Configuration, runtimeenv string, senderHex str
 	arguments = append(arguments, cadence.NewUInt64(tokenID))
 
 	// Send transaction
-	SendTransaction(node, senderHex, senderPrivKeyHex, sigAlgoName, transactioncode, arguments, false)
+	result := SendTransaction(configuration.Network.Host, senderHex, senderPrivKeyHex, sigAlgoName, transactioncode, arguments, false)
+	return result
 }

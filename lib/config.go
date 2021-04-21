@@ -1,7 +1,7 @@
 package lib
 
 // structure of flow.json config
-type Configuration struct {
+type FlowConfiguration struct {
 	Emulators struct {
 		Default struct {
 			Port           int    `json:"port"`
@@ -64,4 +64,66 @@ type Configuration struct {
 			FlowToken        string `json:"FlowToken"`
 		} `json:"testnet"`
 	} `json:"contractaddresses"`
+}
+
+// Own defined config that will adapt based on runtime env
+type Configuration struct {
+	Contractaddresses struct {
+		NonFungibleToken string
+		Veolet           string
+		FungibleToken    string
+		FlowToken        string
+	}
+	Account struct {
+		Address string
+		Keys    string
+		Chain   string
+	}
+	Network struct {
+		Host  string
+		Chain string
+	}
+	Deployments struct {
+		Account []string
+	}
+}
+
+func GetConfig(flowconfig FlowConfiguration, runtimeenv string) *Configuration {
+	config := new(Configuration)
+	if runtimeenv == "emulator" {
+		config.Contractaddresses.NonFungibleToken = flowconfig.Contractaddresses.Emulator.NonFungibleToken
+		config.Contractaddresses.Veolet = flowconfig.Contractaddresses.Emulator.Veolet
+		config.Contractaddresses.FungibleToken = flowconfig.Contractaddresses.Emulator.FungibleToken
+		config.Contractaddresses.FlowToken = flowconfig.Contractaddresses.Emulator.FlowToken
+
+		config.Account.Address = flowconfig.Accounts.Emulator_account.Address
+		config.Account.Keys = flowconfig.Accounts.Emulator_account.Keys
+		config.Account.Chain = flowconfig.Accounts.Emulator_account.Chain
+
+		config.Network.Host = flowconfig.Networks.Emulator.Host
+		config.Network.Chain = flowconfig.Networks.Emulator.Chain
+
+		config.Deployments.Account = flowconfig.Deployments.Emulator.Emulator_account
+
+	} else if runtimeenv == "testnet" {
+		config.Contractaddresses.NonFungibleToken = flowconfig.Contractaddresses.Testnet.NonFungibleToken
+		config.Contractaddresses.Veolet = flowconfig.Contractaddresses.Testnet.Veolet
+		config.Contractaddresses.FungibleToken = flowconfig.Contractaddresses.Testnet.FungibleToken
+		config.Contractaddresses.FlowToken = flowconfig.Contractaddresses.Testnet.FlowToken
+
+		config.Account.Address = flowconfig.Accounts.Testnet_account.Address
+		config.Account.Keys = flowconfig.Accounts.Testnet_account.Keys
+		config.Account.Chain = flowconfig.Accounts.Testnet_account.Chain
+
+		config.Network.Host = flowconfig.Networks.Testnet.Host
+		config.Network.Chain = flowconfig.Networks.Testnet.Chain
+
+		config.Deployments.Account = flowconfig.Deployments.Testnet.Testnet_account
+	} else if runtimeenv == "mainnet" {
+		//Todo
+	} else {
+		panic("Invalid runtimeenv")
+	}
+
+	return config
 }

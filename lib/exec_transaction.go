@@ -3,17 +3,18 @@ package lib
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/onflow/flow-go-sdk/examples"
-	"github.com/onflow/flow-go-sdk/test"
 	"google.golang.org/grpc"
 )
 
-func SendTransaction(node string, inputSignerAcctAddr string, inputSignerPrivateKey string, inputSignerSigner string, transactioncode []byte, arguments []cadence.Value, debug bool) {
+// TODO: implement payer to be our service address all the time -> right now the proposer (user) also pays
+func SendTransaction(node string, inputSignerAcctAddr string, inputSignerPrivateKey string, inputSignerSigner string, transactioncode []byte, arguments []cadence.Value, debug bool) *flow.TransactionResult {
 	ctx := context.Background()
 	flowClient, err := client.New(node, grpc.WithInsecure())
 	examples.Handle(err)
@@ -28,11 +29,6 @@ func SendTransaction(node string, inputSignerAcctAddr string, inputSignerPrivate
 
 	accountKey := acc.Keys[0]
 	signer := crypto.NewInMemorySigner(privateKey, accountKey.HashAlgo)
-	//addr, accountKey, signer
-	//serviceAcctAddr, serviceAcctKey, serviceSigner
-
-	message := test.GreetingGenerator().Random()
-	greeting := cadence.NewString(message)
 
 	referenceBlockID := examples.GetReferenceBlockId(flowClient)
 	tx := flow.NewTransaction().
@@ -49,23 +45,21 @@ func SendTransaction(node string, inputSignerAcctAddr string, inputSignerPrivate
 		}
 	}
 
-	if debug {
-		fmt.Println("Sending transaction:")
-		fmt.Println()
-		fmt.Println("----------------")
-		fmt.Println("Script:")
-		fmt.Println(string(tx.Script))
-		fmt.Println("Arguments:")
-		fmt.Printf("greeting: %s\n", greeting)
-		fmt.Println("----------------")
-		fmt.Println()
-	}
-
 	err = tx.SignEnvelope(addr, accountKey.Index, signer)
 	examples.Handle(err)
 
 	err = flowClient.SendTransaction(ctx, *tx)
 	examples.Handle(err)
 
-	_ = examples.WaitForSeal(ctx, flowClient, tx.ID())
+	result, err := flowClient.GetTransactionResult(ctx, tx.ID())
+	examples.Handle(err)
+
+	for result.Status != flow.TransactionStatusSealed {
+		time.Sleep(time.Second)
+		fmt.Print(".")
+		result, err = flowClient.GetTransactionResult(ctx, tx.ID())
+		examples.Handle(err)
+	}
+
+	return result
 }

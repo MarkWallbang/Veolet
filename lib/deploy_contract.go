@@ -4,27 +4,11 @@ import (
 	"io/ioutil"
 
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/templates"
 )
 
-func DeployContract(configuration Configuration, runtimeenv string, contract templates.Contract) {
-
-	// get config
-	var node string
-	var serviceAddressHex string
-	var servicePrivKeyHex string
-	var serviceSigAlgoHex string
-	if runtimeenv == "emulator" {
-		node = configuration.Networks.Emulator.Host
-		serviceAddressHex = configuration.Accounts.Emulator_account.Address
-		servicePrivKeyHex = configuration.Accounts.Emulator_account.Keys
-		serviceSigAlgoHex = "ECDSA_P256"
-	} else if runtimeenv == "testnet" {
-		node = configuration.Networks.Testnet.Host
-		serviceAddressHex = configuration.Accounts.Testnet_account.Address
-		servicePrivKeyHex = configuration.Accounts.Testnet_account.Keys
-		serviceSigAlgoHex = "ECDSA_P256"
-	}
+func DeployContract(configuration Configuration, runtimeenv string, contract templates.Contract) *flow.TransactionResult {
 
 	code, err := ioutil.ReadFile("cadence/transactions/AddContract.cdc")
 	if err != nil {
@@ -34,6 +18,6 @@ func DeployContract(configuration Configuration, runtimeenv string, contract tem
 	arguments = append(arguments, cadence.NewString(contract.Name))
 	arguments = append(arguments, cadence.NewString(contract.SourceHex()))
 
-	SendTransaction(node, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, code, arguments, false)
-
+	result := SendTransaction(configuration.Network.Host, configuration.Account.Address, configuration.Account.Keys, "ECDSA_P256", code, arguments, false)
+	return result
 }
