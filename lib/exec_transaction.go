@@ -17,7 +17,9 @@ import (
 func SendTransaction(node string, inputSignerAcctAddr string, inputSignerPrivateKey string, inputSignerSigner string, transactioncode []byte, arguments []cadence.Value, debug bool) *flow.TransactionResult {
 	ctx := context.Background()
 	flowClient, err := client.New(node, grpc.WithInsecure())
-	examples.Handle(err)
+	if err != nil {
+		panic("Could not connect to client")
+	}
 
 	sigAlgo := crypto.StringToSignatureAlgorithm(inputSignerSigner)
 	privateKey, err := crypto.DecodePrivateKeyHex(sigAlgo, inputSignerPrivateKey)
