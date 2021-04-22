@@ -38,6 +38,6 @@ func MintToken(configuration Configuration, runtimeenv string, recipient flow.Ad
 	arguments = append(arguments, cadence.NewUInt16(edition))
 
 	// Send transaction
-	result := SendTransaction(configuration.Network.Host, configuration.Account.Address, configuration.Account.Keys, serviceSigAlgoHex, transactioncode, arguments, false)
+	result := SendTransaction(configuration.Network.Host, configuration.Account.Address, configuration.Account.Keys, serviceSigAlgoHex, transactioncode, arguments, configuration.Account.Address, configuration.Account.Keys)
 	return result
 }

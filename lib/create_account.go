@@ -71,7 +71,7 @@ func CreateNewAccount(configuration Configuration, runtimeenv string) (string, s
 	// 2. Replace placeholder addresses
 	setupcode = ReplaceAddressPlaceholders(setupcode, NFTContractAddress, VeoletContractAddress, "", "")
 
-	result := SendTransaction(node, address, privKey, serviceSigAlgoHex, setupcode, nil, false)
+	result := SendTransaction(node, address, privKey, serviceSigAlgoHex, setupcode, nil, address, privKey)
 	if result.Error != nil {
 		panic("Setup account failed")
 	}

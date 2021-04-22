@@ -30,9 +30,8 @@ flow scripts execute --code=cadence\scripts\Tester.cdc --args="[{\"type\":\"Stri
 
 ## Run tests
 
-Tests can be run in the emulator environment and the testnet environment. You first have to set an environment variable to set the environment you want to test on.
+Tests can be run from inside the cadence/lib/go/test folder. Simply navigate to the folder and run the following command:
 
-On Windows (run cmd as administrator):
 ```
-setx veolettestenv "emulator" / "testnet" /M
+go test -v
 ```

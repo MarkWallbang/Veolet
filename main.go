@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"encoding/json"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -14,12 +13,15 @@ import (
 	//"github.com/onflow/flow-go-sdk/templates"
 )
 
+var runtimeenv string
+
 func main() {
 
-	runtimeenv := flag.String("env", "emulator", "In which environment to run the program. emulator/testnet/mainnet")
-	teststring := "testnet"
-	runtimeenv = &teststring
-	fmt.Println("Running program on " + *runtimeenv)
+	flag.StringVar(&runtimeenv, "env", "emulator", "environment to run the program in")
+	flag.Parse()
+	//teststring := "testnet"
+	//runtimeenv = &teststring
+	fmt.Println("Running program on " + runtimeenv)
 
 	// Read configurations
 	file, _ := os.Open("flow.json")
@@ -27,8 +29,7 @@ func main() {
 	byteFile, _ := ioutil.ReadAll(file)
 	var configuration lib.FlowConfiguration
 	json.Unmarshal(byteFile, &configuration)
-	config := lib.GetConfig(configuration, *runtimeenv)
-
+	config := lib.GetConfig(configuration, runtimeenv)
 	var serviceaddress = flow.HexToAddress(config.Account.Address)
 	contracts := lib.FetchContracts(*config, serviceaddress)
 	for k, v := range contracts {

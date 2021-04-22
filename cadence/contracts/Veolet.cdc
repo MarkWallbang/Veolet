@@ -1,4 +1,4 @@
-import NonFungibleToken from 0xNONFUNGIBLETOKEN//"./NonFungibleToken.cdc"
+import NonFungibleToken from "./NonFungibleToken.cdc" //0xNONFUNGIBLETOKEN
 
 pub contract Veolet: NonFungibleToken {
     pub var totalSupply: UInt64
@@ -55,10 +55,11 @@ pub contract Veolet: NonFungibleToken {
         }
 
         pub fun setNFTMediaURL(id: UInt64, newMediaURL: String){
+            // change the currentMediaURL field of token. This can only be done by the holder
+            // Please note that the originalMediaURL will still be the same (it is immutable)
             let changetoken <- self.ownedNFTs.remove(key: id)! as! @Veolet.NFT
             changetoken.currentMediaURL = newMediaURL
             self.deposit(token: <-changetoken)
-
         }
 
 

@@ -10,8 +10,13 @@ type FlowConfiguration struct {
 	} `json:"emulators"`
 
 	Contracts struct {
-		NonFungibleToken string `json:"NonFungibleToken"`
-		Veolet           string `json:"Veolet"`
+		NonFungibleToken struct {
+			Source  string `json:"source"`
+			Aliases struct {
+				Testnet string `json:"testnet"`
+			} `json:"aliases"`
+		} `json:"NonFungibleToken"`
+		Veolet string `json:"Veolet"`
 	} `json:"contracts"`
 
 	Networks struct {

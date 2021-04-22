@@ -18,6 +18,6 @@ func DeployContract(configuration Configuration, runtimeenv string, contract tem
 	arguments = append(arguments, cadence.NewString(contract.Name))
 	arguments = append(arguments, cadence.NewString(contract.SourceHex()))
 
-	result := SendTransaction(configuration.Network.Host, configuration.Account.Address, configuration.Account.Keys, "ECDSA_P256", code, arguments, false)
+	result := SendTransaction(configuration.Network.Host, configuration.Account.Address, configuration.Account.Keys, "ECDSA_P256", code, arguments, configuration.Account.Address, configuration.Account.Keys)
 	return result
 }

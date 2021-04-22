@@ -10,5 +10,6 @@ func ReplaceAddressPlaceholders(code []byte, nftAddress string, veoletAddress st
 	code = bytes.ReplaceAll(code, []byte("0xVEOLET"), []byte("0x"+veoletAddress))
 	code = bytes.ReplaceAll(code, []byte("0xFUNGIBLETOKEN"), []byte("0x"+ftAddress))
 	code = bytes.ReplaceAll(code, []byte("0xFLOW"), []byte("0x"+flowAddress))
+	code = bytes.ReplaceAll(code, []byte("\"./NonFungibleToken.cdc\""), []byte("0x"+nftAddress))
 	return code
 }

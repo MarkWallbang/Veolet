@@ -27,6 +27,6 @@ func TransferToken(configuration Configuration, runtimeenv string, senderHex str
 	arguments = append(arguments, cadence.NewUInt64(tokenID))
 
 	// Send transaction
-	result := SendTransaction(configuration.Network.Host, senderHex, senderPrivKeyHex, sigAlgoName, transactioncode, arguments, false)
+	result := SendTransaction(configuration.Network.Host, senderHex, senderPrivKeyHex, sigAlgoName, transactioncode, arguments, configuration.Account.Address, configuration.Account.Keys)
 	return result
 }
