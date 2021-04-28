@@ -21,9 +21,9 @@ import (
 */
 
 type testaccount struct {
-	address flow.Address
-	key     *flow.AccountKey
-	signer  crypto.Signer
+	Address flow.Address
+	Key     *flow.AccountKey
+	Signer  crypto.Signer
 }
 
 // newEmulator returns a emulator object for testing
@@ -43,18 +43,18 @@ func setupTestaccount(b *emulator.Blockchain, t *testing.T, nftacc testaccount, 
 		t.Error("Cannot read script file")
 	}
 	// 2. Replace placeholder addresses
-	setupcode = lib.ReplaceAddressPlaceholders(setupcode, nftacc.address.Hex(), veoletacc.address.Hex(), "", "")
+	setupcode = lib.ReplaceAddressPlaceholders(setupcode, nftacc.Address.Hex(), veoletacc.Address.Hex(), "", "")
 
 	// 3. Create Transaction
 	//latestblock, err := b.GetLatestBlock()
 	tx := flow.NewTransaction().
 		SetScript(setupcode).
-		SetProposalKey(useracc.address, useracc.key.Index, useracc.key.SequenceNumber).
+		SetProposalKey(useracc.Address, useracc.Key.Index, useracc.Key.SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		//SetReferenceBlockID(latestblock.ID).
-		AddAuthorizer(useracc.address)
+		AddAuthorizer(useracc.Address)
 
-	err = tx.SignPayload(useracc.address, useracc.key.Index, useracc.signer)
+	err = tx.SignPayload(useracc.Address, useracc.Key.Index, useracc.Signer)
 	if err != nil {
 		t.Error("Could not sign payload")
 	}
@@ -82,7 +82,7 @@ func setupTestaccount(b *emulator.Blockchain, t *testing.T, nftacc testaccount, 
 	}
 
 }
-func createAccountCreds(t *testing.T) (*flow.AccountKey, crypto.Signer) {
+func createAccountCreds(t *testing.T) (*flow.AccountKey, crypto.Signer, crypto.PrivateKey) {
 	pubKeyHex, privKeyHex := lib.GenerateKeys("ECDSA_P256")
 	sigAlgo := crypto.StringToSignatureAlgorithm("ECDSA_P256")
 	publicKey, err := crypto.DecodePublicKeyHex(sigAlgo, pubKeyHex)
@@ -97,8 +97,11 @@ func createAccountCreds(t *testing.T) (*flow.AccountKey, crypto.Signer) {
 		SetHashAlgo(hashAlgo).
 		SetWeight(flow.AccountKeyWeightThreshold)
 	privKey, err := crypto.DecodePrivateKeyHex(sigAlgo, privKeyHex)
+	if err != nil {
+		t.Error("Could not decode private key")
+	}
 	Signer := crypto.NewInMemorySigner(privKey, hashAlgo)
-	return AccountKey, Signer
+	return AccountKey, Signer, privKey
 }
 
 /*
@@ -108,7 +111,7 @@ one for the Veolet contract, and a user account without a contract.
 func deployVeoletContracts(b *emulator.Blockchain, t *testing.T) (testaccount, testaccount, testaccount) {
 
 	// Create credentials for Veolet Contract account
-	AccountKey, Signer := createAccountCreds(t)
+	AccountKey, Signer, _ := createAccountCreds(t)
 
 	// Should be able to deploy a contract as a new account with no keys.
 	code, err := ioutil.ReadFile("../../../contracts/NonFungibleToken.cdc")
@@ -156,7 +159,7 @@ func deployVeoletContracts(b *emulator.Blockchain, t *testing.T) (testaccount, t
 	}
 
 	// Should be able to create account without contract (user)
-	UserAccountKey, UserSigner := createAccountCreds(t)
+	UserAccountKey, UserSigner, _ := createAccountCreds(t)
 	UserAddr, err := b.CreateAccount([]*flow.AccountKey{UserAccountKey}, nil)
 	if err != nil {
 		t.Error(err)
@@ -166,9 +169,9 @@ func deployVeoletContracts(b *emulator.Blockchain, t *testing.T) (testaccount, t
 		t.Error(err)
 	}
 
-	nftacc := testaccount{address: nftAddr, key: nil, signer: nil}
-	veoletacc := testaccount{address: VeoletAddr, key: AccountKey, signer: Signer}
-	useracc := testaccount{address: UserAddr, key: UserAccountKey, signer: UserSigner}
+	nftacc := testaccount{Address: nftAddr, Key: nil, Signer: nil}
+	veoletacc := testaccount{Address: VeoletAddr, Key: AccountKey, Signer: Signer}
+	useracc := testaccount{Address: UserAddr, Key: UserAccountKey, Signer: UserSigner}
 	t.Log("NFT Account", nftacc)
 	t.Log("Veolet Account", veoletacc)
 	t.Log("User Account", useracc)
@@ -183,14 +186,14 @@ func mintToken(t *testing.T, b *emulator.Blockchain, receiver testaccount, veole
 	}
 
 	// Change placeholder address in script import
-	transactioncode = lib.ReplaceAddressPlaceholders(transactioncode, nftacc.address.Hex(), veoletacc.address.Hex(), "", "")
+	transactioncode = lib.ReplaceAddressPlaceholders(transactioncode, nftacc.Address.Hex(), veoletacc.Address.Hex(), "", "")
 
 	//define arguments
 	var arguments []cadence.Value
-	arguments = append(arguments, cadence.NewAddress(receiver.address))
+	arguments = append(arguments, cadence.NewAddress(receiver.Address))
 	arguments = append(arguments, cadence.NewString("testNFT.com/test"))
 	arguments = append(arguments, cadence.NewString("creatorName"))
-	arguments = append(arguments, cadence.NewAddress(receiver.address))
+	arguments = append(arguments, cadence.NewAddress(receiver.Address))
 	arguments = append(arguments, cadence.NewUInt64(uint64(time.Now().Unix())))
 	arguments = append(arguments, cadence.NewString("caption"))
 	arguments = append(arguments, cadence.NewString("hash"))
@@ -199,10 +202,10 @@ func mintToken(t *testing.T, b *emulator.Blockchain, receiver testaccount, veole
 	// Send transaction
 	tx := flow.NewTransaction().
 		SetScript(transactioncode).
-		SetProposalKey(veoletacc.address, veoletacc.key.Index, veoletacc.key.SequenceNumber).
+		SetProposalKey(veoletacc.Address, veoletacc.Key.Index, veoletacc.Key.SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		//SetReferenceBlockID(latestblock.ID).
-		AddAuthorizer(veoletacc.address)
+		AddAuthorizer(veoletacc.Address)
 
 	for i := 0; i < len(arguments); i++ {
 		err = tx.AddArgument(arguments[i])
@@ -211,7 +214,7 @@ func mintToken(t *testing.T, b *emulator.Blockchain, receiver testaccount, veole
 		}
 	}
 	// Veolet address signs payload as minter (authorizer/proposer)
-	err = tx.SignPayload(veoletacc.address, veoletacc.key.Index, veoletacc.signer)
+	err = tx.SignPayload(veoletacc.Address, veoletacc.Key.Index, veoletacc.Signer)
 	if err != nil {
 		t.Error("Could not sign payload")
 	}
@@ -243,7 +246,7 @@ func mintToken(t *testing.T, b *emulator.Blockchain, receiver testaccount, veole
 	}
 
 	// Increment Sequence number of veolet key
-	veoletacc.key.SequenceNumber++
+	veoletacc.Key.SequenceNumber++
 }
 
 // Function to transfer Veolet NFT from one account to the other
@@ -253,18 +256,18 @@ func transferToken(t *testing.T, b *emulator.Blockchain, recipient *testaccount,
 	if err != nil {
 		t.Error("Could not read script file")
 	}
-	transfercode = lib.ReplaceAddressPlaceholders(transfercode, nftacc.address.Hex(), veoletacc.address.Hex(), "", "")
+	transfercode = lib.ReplaceAddressPlaceholders(transfercode, nftacc.Address.Hex(), veoletacc.Address.Hex(), "", "")
 	tx := flow.NewTransaction().
 		SetScript(transfercode).
-		SetProposalKey(sender.address, sender.key.Index, sender.key.SequenceNumber).
+		SetProposalKey(sender.Address, sender.Key.Index, sender.Key.SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		//SetReferenceBlockID(latestblock.ID).
-		AddAuthorizer(sender.address)
-	tx.AddArgument(cadence.NewAddress(recipient.address)) // Add recipient argument
+		AddAuthorizer(sender.Address)
+	tx.AddArgument(cadence.NewAddress(recipient.Address)) // Add recipient argument
 	tx.AddArgument(cadence.NewUInt64(tokenID))            // Add tokenID argument
 
 	// Sender signs payload (authorizer/proposer)
-	err = tx.SignPayload(sender.address, sender.key.Index, sender.signer)
+	err = tx.SignPayload(sender.Address, sender.Key.Index, sender.Signer)
 	if err != nil {
 		t.Error("Could not sign payload")
 	}
@@ -302,7 +305,7 @@ func transferToken(t *testing.T, b *emulator.Blockchain, recipient *testaccount,
 		t.Error("CommitBlock failed")
 	}
 
-	sender.key.SequenceNumber++
+	sender.Key.SequenceNumber++
 }
 
 // Function to get all tokenID's of a users collection
@@ -312,8 +315,8 @@ func fetchCollection(t *testing.T, b *emulator.Blockchain, target testaccount, n
 	if err != nil {
 		t.Error("Could not read script file")
 	}
-	fetchscript = lib.ReplaceAddressPlaceholders(fetchscript, nftacc.address.Hex(), "", "", "")
-	result, err := b.ExecuteScript(fetchscript, [][]byte{jsoncdc.MustEncode(cadence.NewAddress(target.address))})
+	fetchscript = lib.ReplaceAddressPlaceholders(fetchscript, nftacc.Address.Hex(), "", "", "")
+	result, err := b.ExecuteScript(fetchscript, [][]byte{jsoncdc.MustEncode(cadence.NewAddress(target.Address))})
 	if err != nil {
 		t.Error("Could not execute script", err)
 	}
@@ -327,7 +330,7 @@ func fetchNFT(t *testing.T, b *emulator.Blockchain, veoletacc testaccount, nftac
 	if err != nil {
 		t.Error("Could not read script file")
 	}
-	fetchscript = lib.ReplaceAddressPlaceholders(fetchscript, nftacc.address.Hex(), veoletacc.address.Hex(), "", "")
+	fetchscript = lib.ReplaceAddressPlaceholders(fetchscript, nftacc.Address.Hex(), veoletacc.Address.Hex(), "", "")
 	result, err := b.ExecuteScript(fetchscript, [][]byte{jsoncdc.MustEncode(cadence.NewAddress(targetcollection)),
 		jsoncdc.MustEncode(cadence.NewUInt64(tokenID))})
 	if err != nil {
@@ -342,18 +345,18 @@ func setMediaURL(t *testing.T, b *emulator.Blockchain, veoletacc testaccount, ta
 	if err != nil {
 		t.Error("Could not read script file")
 	}
-	code = lib.ReplaceAddressPlaceholders(code, "", veoletacc.address.Hex(), "", "")
+	code = lib.ReplaceAddressPlaceholders(code, "", veoletacc.Address.Hex(), "", "")
 	tx := flow.NewTransaction().
 		SetScript(code).
-		SetProposalKey(targetacc.address, targetacc.key.Index, targetacc.key.SequenceNumber).
+		SetProposalKey(targetacc.Address, targetacc.Key.Index, targetacc.Key.SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		//SetReferenceBlockID(latestblock.ID).
-		AddAuthorizer(targetacc.address)
+		AddAuthorizer(targetacc.Address)
 	tx.AddArgument(cadence.NewString(newURL))  // Add newURL argument
 	tx.AddArgument(cadence.NewUInt64(tokenID)) // Add tokenID argument
 
 	// Sender signs payload (authorizer/proposer)
-	err = tx.SignPayload(targetacc.address, targetacc.key.Index, targetacc.signer)
+	err = tx.SignPayload(targetacc.Address, targetacc.Key.Index, targetacc.Signer)
 	if err != nil {
 		t.Error("Could not sign payload")
 	}
@@ -391,7 +394,21 @@ func setMediaURL(t *testing.T, b *emulator.Blockchain, veoletacc testaccount, ta
 		t.Error("CommitBlock failed")
 	}
 
-	targetacc.key.SequenceNumber++
+	targetacc.Key.SequenceNumber++
+}
+
+// Function to execute the storage info script
+func getStorageInfo(t *testing.T, b *emulator.Blockchain, account testaccount) cadence.Value {
+	// Read script file
+	code, err := ioutil.ReadFile("../../../scripts/StorageUsed.cdc")
+	if err != nil {
+		t.Error("Could not read script file")
+	}
+	result, err := b.ExecuteScript(code, [][]byte{jsoncdc.MustEncode(cadence.NewAddress(account.Address))})
+	if err != nil {
+		t.Error("Could not execute script", err)
+	}
+	return result.Value
 }
 
 func TestDeployVeoletContract(t *testing.T) {
@@ -502,18 +519,18 @@ func TestGetVeoletInformation(t *testing.T) {
 	}
 
 	// Fetch the information about the minted NFT
-	result := fetchNFT(t, b, veoletacc, nftacc, veoletacc.address, 0).(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).Fields
+	result := fetchNFT(t, b, veoletacc, nftacc, veoletacc.Address, 0).(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).Fields
 	if len(result) != 10 {
 		t.Error("Expected length 10, got", len(result))
 	}
 
 	// Try to fetch info of non existing NFT (in existing collection)
-	result2 := fetchNFT(t, b, veoletacc, nftacc, veoletacc.address, 1)
+	result2 := fetchNFT(t, b, veoletacc, nftacc, veoletacc.Address, 1)
 	if result2.(cadence.Optional).Value != nil {
 		t.Error("Expected Optional Value to be nil, got", result2.(cadence.Optional).Value)
 	}
 	//Try to fetch info of account without Veolet vault/collection
-	result3 := fetchNFT(t, b, veoletacc, nftacc, nftacc.address, 0)
+	result3 := fetchNFT(t, b, veoletacc, nftacc, nftacc.Address, 0)
 	if result3 != nil {
 		t.Error("Expected nil reference, got", result3)
 	}
@@ -539,10 +556,64 @@ func TestSetMediaURL(t *testing.T) {
 	// Change the settable mediaURL of the minted Token using the private collection.
 	setMediaURL(t, b, veoletacc, &veoletacc, 0, "newurl.com", false)
 	// Assert that the URL has been changed
-	token := fetchNFT(t, b, veoletacc, nftacc, veoletacc.address, 0).(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).Fields
+	token := fetchNFT(t, b, veoletacc, nftacc, veoletacc.Address, 0).(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).Fields
 	if strings.Trim(token[9].String(), "\"") != "newurl.com" {
 		t.Error("Expected \"newurl.com\", got ", token[9])
 	}
 	// Try to change the MediaURL of non-existing token
 	setMediaURL(t, b, veoletacc, &useracc, 0, "newurl.com", true)
+}
+
+func TestGetStorageInfo(t *testing.T) {
+	// Should be able to fetch storage capacity and usage of an account
+	t.Log("Start GetStorageInfo test")
+
+	b := NewEmulator()
+	// Create new accounts and deploy contracts
+	nftacc, veoletacc, useracc := deployVeoletContracts(b, t)
+	// Setup User account
+	setupTestaccount(b, t, nftacc, veoletacc, useracc)
+
+	// Check storage usage and capacity of user account
+	result := getStorageInfo(t, b, useracc).(cadence.Array).Values
+	cap := int(result[0].(cadence.UInt64))
+	used := int(result[1].(cadence.UInt64))
+	t.Log("Useraccount has storage cap: ", cap)
+	t.Log("Useraccount has storage usage: ", used)
+
+	// Use Veolet account to mint token into useraccount to test if storage changes
+	mintToken(t, b, useracc, &veoletacc, nftacc)
+
+	// Get new storage info
+	newresult := getStorageInfo(t, b, useracc).(cadence.Array).Values
+	newcap := int(newresult[0].(cadence.UInt64))
+	newused := int(newresult[1].(cadence.UInt64))
+	t.Log("Useraccount has new storage cap: ", newcap)
+	t.Log("Useraccount has new storage usage: ", newused)
+
+	if newcap != cap {
+		t.Error("Expected same capacity, got: ", cap, newcap)
+	}
+	if used == newused {
+		t.Error("Expected different usage, got: ", used, newused)
+	}
+
+}
+
+func TestGetBalance(t *testing.T) {
+	// Should be able to get accounts balance
+	t.Log("Start GetBalance test")
+
+	b := NewEmulator()
+	// Create new accounts and deploy contracts
+	nftacc, veoletacc, useracc := deployVeoletContracts(b, t)
+	// Setup User account
+	setupTestaccount(b, t, nftacc, veoletacc, useracc)
+
+	acc, err := b.GetAccount(useracc.Address)
+	if err != nil {
+		t.Error("Could not get Account")
+	}
+	balance := acc.Balance
+	t.Log("Testaccounts balance: ", balance)
 }

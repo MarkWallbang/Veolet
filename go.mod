@@ -3,6 +3,7 @@ module veolet
 go 1.15
 
 require (
+	github.com/aws/aws-lambda-go v1.23.0
 	github.com/onflow/cadence v0.14.4
 	github.com/onflow/flow-emulator v0.17.3
 	github.com/onflow/flow-go-sdk v0.17.0

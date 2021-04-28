@@ -16,10 +16,21 @@ import (
 	"google.golang.org/grpc"
 )
 
+// cryptographically secure random number generator (CSPRNG)
+func GenerateRandomBytes(n int) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	// Note that err == nil only if we read len(b) bytes.
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
 // [2]
 func GenerateKeys(sigAlgoName string) (string, string) {
-	seed := make([]byte, crypto.MinSeedLength)
-	_, err := rand.Read(seed)
+	seed, err := GenerateRandomBytes(64)
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +67,7 @@ func CreateNewAccount(configuration Configuration, runtimeenv string) (string, s
 	gasLimit := uint64(100)
 
 	// [17]
-	txID := CreateAccount(node, pubKey, sigAlgoName, hashAlgoName, nil, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, gasLimit) // statt nil -> string(code)
+	txID := CreateAccount(node, pubKey, sigAlgoName, hashAlgoName, nil, serviceAddressHex, servicePrivKeyHex, serviceSigAlgoHex, gasLimit)
 
 	// [19]
 	address := GetAddress(node, txID)
@@ -167,7 +178,7 @@ func GetAddress(node string, txIDHex string) string {
 	txID := flow.HexToID(txIDHex)
 
 	var address flow.Address
-	for true {
+	for {
 		result, err := c.GetTransactionResult(ctx, txID)
 		if err != nil {
 			panic("failed to get transaction result")
