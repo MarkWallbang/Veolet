@@ -8,7 +8,7 @@ import (
 	"github.com/onflow/flow-go-sdk/templates"
 )
 
-func DeployContract(configuration Configuration, runtimeenv string, contract templates.Contract) *flow.TransactionResult {
+func DeployContract(configuration Configuration, target Account, runtimeenv string, contract templates.Contract) *flow.TransactionResult {
 
 	code, err := ioutil.ReadFile("cadence/transactions/AddContract.cdc")
 	if err != nil {
@@ -18,6 +18,6 @@ func DeployContract(configuration Configuration, runtimeenv string, contract tem
 	arguments = append(arguments, cadence.NewString(contract.Name))
 	arguments = append(arguments, cadence.NewString(contract.SourceHex()))
 
-	result := SendTransaction(configuration.Network.Host, configuration.Account.Address, configuration.Account.Keys, "ECDSA_P256", code, arguments, configuration.Account.Address, configuration.Account.Keys)
+	result := SendTransaction(configuration, target, code, arguments)
 	return result
 }

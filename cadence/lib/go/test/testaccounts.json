@@ -22,5 +22,9 @@
    {
       "address": "abc3d88365b442a7",
       "privkey": "50fbb254da96aa7913f4d5798133f9749ab2087eb924a2b1a3f980b12bdbdab7"
+   },
+   {
+      "address": "7567bc82d3d11580",
+      "privkey": "7eccb72bbbbe7dc7f5665f4b16684ffcd0ae1301847b1a9fdca8e8b109f2d300"
    }
 ]

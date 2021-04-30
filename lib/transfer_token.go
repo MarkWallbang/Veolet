@@ -7,10 +7,7 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
-func TransferToken(configuration Configuration, runtimeenv string, senderHex string, senderPrivKeyHex string, recipientHex string, tokenID uint64) *flow.TransactionResult {
-
-	// constants
-	sigAlgoName := "ECDSA_P256"
+func TransferToken(configuration Configuration, sender Account, recipientAddress flow.Address, tokenID uint64) *flow.TransactionResult {
 
 	//Read transaction code
 	transactioncode, err := ioutil.ReadFile("cadence/transactions/Transfer.cdc")
@@ -23,10 +20,10 @@ func TransferToken(configuration Configuration, runtimeenv string, senderHex str
 
 	//define arguments
 	var arguments []cadence.Value
-	arguments = append(arguments, cadence.NewAddress(flow.HexToAddress(recipientHex)))
+	arguments = append(arguments, cadence.NewAddress(recipientAddress))
 	arguments = append(arguments, cadence.NewUInt64(tokenID))
 
 	// Send transaction
-	result := SendTransaction(configuration.Network.Host, senderHex, senderPrivKeyHex, sigAlgoName, transactioncode, arguments, configuration.Account.Address, configuration.Account.Keys)
+	result := SendTransaction(configuration, sender, transactioncode, arguments)
 	return result
 }

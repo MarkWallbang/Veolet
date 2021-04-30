@@ -2,24 +2,15 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"log"
-	"net/http"
 	"os"
 	"veolet/lib"
+
+	"github.com/onflow/flow-go-sdk"
 )
 
-type answer struct {
-	Text string
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	p := answer{Text: "test"}
-	json, _ := json.Marshal(p)
-	w.Write(json)
-}
-
-func oldmain() {
+func main() {
 
 	// Read Flow configurations
 	file, _ := os.Open("flow.json")
@@ -27,14 +18,20 @@ func oldmain() {
 	byteFile, _ := ioutil.ReadAll(file)
 	var configuration lib.FlowConfiguration
 	json.Unmarshal(byteFile, &configuration)
-	config := lib.GetConfig(configuration, "emulator")
-	log.Println(config)
+	config := lib.GetConfig(configuration, "testnet")
+	targetaddress := flow.HexToAddress("022a8b9defc588b3")
+	//var serviceaddress = flow.HexToAddress(config.Account.Address)
 
-	// API configurations
-	port := 80
+	res := lib.FetchCollection(*config, targetaddress)
+	fmt.Print(res)
+	cap, used := lib.FetchStorageCapacity(*config, targetaddress)
+	fmt.Println(cap, used)
+	//fmt.Print(lib.FetchBalance(*config, targetaddress))
 
-	http.HandleFunc("/", handler)
+	/*
+		address, _ := lib.CreateNewAccount(*config)
+		fmt.Print(address)
 
-	log.Printf("Server listening on port %d", port)
-	log.Print(http.ListenAndServe(":80", nil))
+		res := lib.MintToken(*config, address, "https://veoletimages.s3.eu-central-1.amazonaws.com/susi.jpeg", "Susi", address, "Susis NFT", "0784fb1h3", 1)
+		fmt.Print(res)*/
 }

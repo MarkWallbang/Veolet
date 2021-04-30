@@ -1,7 +1,0 @@
-{
-    "api":{
-        "port":80
-    },
-
-    "runtimeenv": "emulator"
-}
