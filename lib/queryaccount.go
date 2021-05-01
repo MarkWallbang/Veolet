@@ -71,3 +71,18 @@ func FetchBalance(config Configuration, target flow.Address) uint64 {
 	balance := flowaccount.Balance
 	return balance
 }
+func FetchNFT(config Configuration, target flow.Address, tokenID uint64) cadence.Value {
+	// function to fetch information about a single NFT
+
+	// Read script file
+	fetchscript, err := ioutil.ReadFile("cadence/scripts/ReadNFT.cdc")
+	if err != nil {
+		panic("Could not read script file")
+	}
+	fetchscript = ReplaceAddressPlaceholders(fetchscript, config.Contractaddresses.NonFungibleToken, config.Contractaddresses.Veolet, "", "")
+	result := ExecuteScript(config.Network.Host, fetchscript, []cadence.Value{cadence.NewAddress(target), cadence.NewUInt64(tokenID)})
+	if err != nil {
+		panic("Could not execute script")
+	}
+	return result
+}

@@ -7,6 +7,7 @@ import (
 	"os"
 	"veolet/lib"
 
+	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 )
 
@@ -24,8 +25,13 @@ func main() {
 
 	res := lib.FetchCollection(*config, targetaddress)
 	fmt.Print(res)
-	cap, used := lib.FetchStorageCapacity(*config, targetaddress)
-	fmt.Println(cap, used)
+	//cap, used := lib.FetchStorageCapacity(*config, targetaddress)
+	//fmt.Println(cap, used)
+	result := lib.FetchNFT(*config, targetaddress, 36)
+	realresult := result.(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).Fields
+	real2 := result.ToGoValue()
+	fmt.Print(realresult)
+	fmt.Print(real2)
 	//fmt.Print(lib.FetchBalance(*config, targetaddress))
 
 	/*
