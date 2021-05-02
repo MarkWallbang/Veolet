@@ -36,7 +36,7 @@ func FetchStorageCapacity(config Configuration, address flow.Address) (int, int)
 	var arguments []cadence.Value
 	arguments = append(arguments, cadence.NewAddress(address))
 
-	result := ExecuteScript(config.Network.Host, code, arguments)
+	result, _ := ExecuteScript(config.Network.Host, code, true, arguments)
 	resultarr := result.(cadence.Array).Values
 	return int(resultarr[0].(cadence.UInt64)), int(resultarr[1].(cadence.UInt64))
 }
@@ -49,7 +49,7 @@ func FetchCollection(config Configuration, target flow.Address) cadence.Value {
 		panic("Could not read script file")
 	}
 	fetchscript = ReplaceAddressPlaceholders(fetchscript, config.Contractaddresses.NonFungibleToken, "", "", "")
-	result := ExecuteScript(config.Network.Host, fetchscript, []cadence.Value{cadence.NewAddress(target)})
+	result, _ := ExecuteScript(config.Network.Host, fetchscript, true, []cadence.Value{cadence.NewAddress(target)})
 	if err != nil {
 		fmt.Print(err)
 		panic("Could not execute script")
@@ -80,9 +80,26 @@ func FetchNFT(config Configuration, target flow.Address, tokenID uint64) cadence
 		panic("Could not read script file")
 	}
 	fetchscript = ReplaceAddressPlaceholders(fetchscript, config.Contractaddresses.NonFungibleToken, config.Contractaddresses.Veolet, "", "")
-	result := ExecuteScript(config.Network.Host, fetchscript, []cadence.Value{cadence.NewAddress(target), cadence.NewUInt64(tokenID)})
+	result, _ := ExecuteScript(config.Network.Host, fetchscript, true, []cadence.Value{cadence.NewAddress(target), cadence.NewUInt64(tokenID)})
 	if err != nil {
 		panic("Could not execute script")
 	}
 	return result
+}
+
+func FetchCollectionNFTs(config Configuration, target flow.Address) (cadence.Value, error) {
+	// function to fetch information about a single NFT
+
+	// Read script file
+	fetchscript, err := ioutil.ReadFile("cadence/scripts/FetchCollectionNFTs.cdc")
+	if err != nil {
+		panic("Could not read script file")
+	}
+	fetchscript = ReplaceAddressPlaceholders(fetchscript, config.Contractaddresses.NonFungibleToken, config.Contractaddresses.Veolet, "", "")
+	result, err := ExecuteScript(config.Network.Host, fetchscript, false, []cadence.Value{cadence.NewAddress(target)})
+	/*if err != nil {
+		panic("Could not execute script")
+	}*/
+
+	return result, err
 }

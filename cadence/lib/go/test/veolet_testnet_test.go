@@ -373,7 +373,7 @@ func fetchCollectionTestnet(t *testing.T, config lib.Configuration, target testa
 		t.Error("Could not read script file")
 	}
 	fetchscript = lib.ReplaceAddressPlaceholders(fetchscript, config.Contractaddresses.NonFungibleToken, "", "", "")
-	result := lib.ExecuteScript(config.Network.Host, fetchscript, []cadence.Value{cadence.NewAddress(target.Address)})
+	result, _ := lib.ExecuteScript(config.Network.Host, fetchscript, true, []cadence.Value{cadence.NewAddress(target.Address)})
 	if err != nil {
 		t.Error("Could not execute script", err)
 	}
@@ -426,7 +426,7 @@ func fetchNFTTestnet(t *testing.T, config lib.Configuration, target testaccount,
 		t.Error("Could not read script file")
 	}
 	fetchscript = lib.ReplaceAddressPlaceholders(fetchscript, config.Contractaddresses.NonFungibleToken, config.Contractaddresses.Veolet, "", "")
-	result := lib.ExecuteScript(config.Network.Host, fetchscript, []cadence.Value{cadence.NewAddress(target.Address), cadence.NewUInt64(tokenID)})
+	result, _ := lib.ExecuteScript(config.Network.Host, fetchscript, true, []cadence.Value{cadence.NewAddress(target.Address), cadence.NewUInt64(tokenID)})
 	if err != nil {
 		t.Error("Could not execute script", err)
 	}
@@ -503,7 +503,7 @@ func getStorageInfoTestnet(t *testing.T, config lib.Configuration, target testac
 	if err != nil {
 		t.Error("Could not read script file")
 	}
-	result := lib.ExecuteScript(config.Network.Host, code, []cadence.Value{cadence.NewAddress(target.Address)})
+	result, _ := lib.ExecuteScript(config.Network.Host, code, true, []cadence.Value{cadence.NewAddress(target.Address)})
 	if err != nil {
 		t.Error("Could not execute script", err)
 	}

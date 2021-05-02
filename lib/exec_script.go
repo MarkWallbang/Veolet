@@ -10,7 +10,7 @@ import (
 )
 
 // [2]
-func ExecuteScript(node string, script []byte, args []cadence.Value) cadence.Value {
+func ExecuteScript(node string, script []byte, script_panik_flag bool, args []cadence.Value) (cadence.Value, error) {
 	ctx := context.Background()
 	c, err := client.New(node, grpc.WithInsecure())
 	if err != nil {
@@ -19,9 +19,9 @@ func ExecuteScript(node string, script []byte, args []cadence.Value) cadence.Val
 
 	// [3]
 	result, err := c.ExecuteScriptAtLatestBlock(ctx, script, args)
-	if err != nil {
+	if err != nil && script_panik_flag {
 		panic(err)
 	}
 
-	return result
+	return result, err
 }
