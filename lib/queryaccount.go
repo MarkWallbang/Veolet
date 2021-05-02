@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/gobuffalo/packr"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
@@ -91,11 +92,17 @@ func FetchCollectionNFTs(config Configuration, target flow.Address) (cadence.Val
 	// function to fetch information about a single NFT
 
 	// Read script file
-	fetchscript, err := ioutil.ReadFile("cadence/scripts/FetchCollectionNFTs.cdc")
+	//absPath, _ := filepath.Abs("cadence/scripts/FetchCollectionNFTs.cdc")
+	//fmt.Println(absPath)
+	box := packr.NewBox("../cadence/scripts")
+	fetchscript, err := box.Find("FetchCollectionNFTs.cdc")
+	//fetchscript, err := ioutil.ReadFile("./cadence/scripts/FetchCollectionNFTs.cdc")
 	if err != nil {
-		panic("Could not read script file")
+		panic(err)
+		//panic("Could not read script file")
 	}
 	fetchscript = ReplaceAddressPlaceholders(fetchscript, config.Contractaddresses.NonFungibleToken, config.Contractaddresses.Veolet, "", "")
+	fmt.Println(config.Contractaddresses.NonFungibleToken)
 	result, err := ExecuteScript(config.Network.Host, fetchscript, false, []cadence.Value{cadence.NewAddress(target)})
 	/*if err != nil {
 		panic("Could not execute script")
