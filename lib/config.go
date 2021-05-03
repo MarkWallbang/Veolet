@@ -1,5 +1,11 @@
 package lib
 
+import (
+	"encoding/json"
+
+	"github.com/gobuffalo/packr"
+)
+
 // structure of flow.json config
 type FlowConfiguration struct {
 	Emulators struct {
@@ -93,37 +99,49 @@ type Configuration struct {
 	}
 }
 
-func GetConfig(flowconfig FlowConfiguration, runtimeenv string) *Configuration {
+func GetConfig(runtimeenv string) *Configuration {
+	// Read Flow configurations
+	box := packr.NewBox("..")
+	byteFile, err := box.Find("flow.json")
+	if err != nil {
+		panic("Could not read config file")
+	}
+	//file, _ := os.Open("flow.json")
+	//defer file.Close()
+	//byteFile, _ := ioutil.ReadAll(file)
+	var configuration FlowConfiguration
+	json.Unmarshal(byteFile, &configuration)
+
 	config := new(Configuration)
 	if runtimeenv == "emulator" {
-		config.Contractaddresses.NonFungibleToken = flowconfig.Contractaddresses.Emulator.NonFungibleToken
-		config.Contractaddresses.Veolet = flowconfig.Contractaddresses.Emulator.Veolet
-		config.Contractaddresses.FungibleToken = flowconfig.Contractaddresses.Emulator.FungibleToken
-		config.Contractaddresses.FlowToken = flowconfig.Contractaddresses.Emulator.FlowToken
+		config.Contractaddresses.NonFungibleToken = configuration.Contractaddresses.Emulator.NonFungibleToken
+		config.Contractaddresses.Veolet = configuration.Contractaddresses.Emulator.Veolet
+		config.Contractaddresses.FungibleToken = configuration.Contractaddresses.Emulator.FungibleToken
+		config.Contractaddresses.FlowToken = configuration.Contractaddresses.Emulator.FlowToken
 
-		config.Account.Address = flowconfig.Accounts.Emulator_account.Address
-		config.Account.Keys = flowconfig.Accounts.Emulator_account.Keys
-		config.Account.Chain = flowconfig.Accounts.Emulator_account.Chain
+		config.Account.Address = configuration.Accounts.Emulator_account.Address
+		config.Account.Keys = configuration.Accounts.Emulator_account.Keys
+		config.Account.Chain = configuration.Accounts.Emulator_account.Chain
 
-		config.Network.Host = flowconfig.Networks.Emulator.Host
-		config.Network.Chain = flowconfig.Networks.Emulator.Chain
+		config.Network.Host = configuration.Networks.Emulator.Host
+		config.Network.Chain = configuration.Networks.Emulator.Chain
 
-		config.Deployments.Account = flowconfig.Deployments.Emulator.Emulator_account
+		config.Deployments.Account = configuration.Deployments.Emulator.Emulator_account
 
 	} else if runtimeenv == "testnet" {
-		config.Contractaddresses.NonFungibleToken = flowconfig.Contractaddresses.Testnet.NonFungibleToken
-		config.Contractaddresses.Veolet = flowconfig.Contractaddresses.Testnet.Veolet
-		config.Contractaddresses.FungibleToken = flowconfig.Contractaddresses.Testnet.FungibleToken
-		config.Contractaddresses.FlowToken = flowconfig.Contractaddresses.Testnet.FlowToken
+		config.Contractaddresses.NonFungibleToken = configuration.Contractaddresses.Testnet.NonFungibleToken
+		config.Contractaddresses.Veolet = configuration.Contractaddresses.Testnet.Veolet
+		config.Contractaddresses.FungibleToken = configuration.Contractaddresses.Testnet.FungibleToken
+		config.Contractaddresses.FlowToken = configuration.Contractaddresses.Testnet.FlowToken
 
-		config.Account.Address = flowconfig.Accounts.Testnet_account.Address
-		config.Account.Keys = flowconfig.Accounts.Testnet_account.Keys
-		config.Account.Chain = flowconfig.Accounts.Testnet_account.Chain
+		config.Account.Address = configuration.Accounts.Testnet_account.Address
+		config.Account.Keys = configuration.Accounts.Testnet_account.Keys
+		config.Account.Chain = configuration.Accounts.Testnet_account.Chain
 
-		config.Network.Host = flowconfig.Networks.Testnet.Host
-		config.Network.Chain = flowconfig.Networks.Testnet.Chain
+		config.Network.Host = configuration.Networks.Testnet.Host
+		config.Network.Chain = configuration.Networks.Testnet.Chain
 
-		config.Deployments.Account = flowconfig.Deployments.Testnet.Testnet_account
+		config.Deployments.Account = configuration.Deployments.Testnet.Testnet_account
 	} else if runtimeenv == "mainnet" {
 		//Todo
 	} else {

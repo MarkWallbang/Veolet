@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"math/rand"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -32,12 +31,7 @@ type testaccountjson struct {
 
 // Function to read testnet configuration
 func setup(t *testing.T) *lib.Configuration {
-	file, _ := os.Open("../../../../flow.json")
-	defer file.Close()
-	byteFile, _ := ioutil.ReadAll(file)
-	var configuration lib.FlowConfiguration
-	json.Unmarshal(byteFile, &configuration)
-	config := lib.GetConfig(configuration, "testnet")
+	config := lib.GetConfig("testnet")
 	return config
 }
 

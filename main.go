@@ -1,10 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"veolet/lib"
 
 	"github.com/onflow/cadence"
@@ -14,12 +11,7 @@ import (
 func main() {
 
 	// Read Flow configurations
-	file, _ := os.Open("flow.json")
-	defer file.Close()
-	byteFile, _ := ioutil.ReadAll(file)
-	var configuration lib.FlowConfiguration
-	json.Unmarshal(byteFile, &configuration)
-	config := lib.GetConfig(configuration, "testnet")
+	config := lib.GetConfig("testnet")
 	targetaddress := flow.HexToAddress("022a8b9defc588b3")
 	//var serviceaddress = flow.HexToAddress(config.Account.Address)
 
