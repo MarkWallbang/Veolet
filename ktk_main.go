@@ -1,28 +1,27 @@
-package main
+package veolet
 
 import (
 	"fmt"
-	"veolet/lib"
 
 	"github.com/onflow/flow-go-sdk"
 )
 
 func amain() {
 	// Read Flow configurations
-	config := lib.GetConfig("testnet")
+	config := GetConfig("testnet")
 	targetaddress := flow.HexToAddress("022a8b9defc588b3")
 
 	//var serviceaddress = flow.HexToAddress(config.Account.Address)
 
-	res, _ := lib.FetchCollectionNFTs(*config, targetaddress)
-	//res := lib.FetchNFT(*config, targetaddress, 36)
+	res, _ := FetchCollectionNFTs(*config, targetaddress)
+	//res := FetchNFT(*config, targetaddress, 36)
 	//t := res.ToGoValue().([]interface{})
 
 	/*for id, value := range t {
 		fmt.Print(id, value)
 	}
 	fmt.Print(t)*/
-	res_json := lib.ConvertNFTsToMap(res)
+	res_json := ConvertNFTsToMap(res)
 	_ = res_json
 	//fmt.Println(string(res_json))
 	res_go := res.ToGoValue().([]interface{})
@@ -40,6 +39,6 @@ func amain() {
 
 	//fmt.Print(err)
 
-	//cap, used := lib.FetchStorageCapacity(*config, targetaddress)
+	//cap, used := FetchStorageCapacity(*config, targetaddress)
 	//fmt.Println(cap, used)
 }

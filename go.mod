@@ -1,6 +1,6 @@
-module veolet
+module github.com/markwallbang/veolet
 
-go 1.15
+go 1.16
 
 require (
 	github.com/gobuffalo/envy v1.9.0 // indirect
