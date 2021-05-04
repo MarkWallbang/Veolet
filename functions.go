@@ -722,8 +722,9 @@ func ConvertNFTsToMap(input cadence.Value) map[string]interface{} {
 
 		//get the field types and the values of a nft
 		//pls forgive me this abomination
-		nft_struct := convertCadenceCompositeToMap(nft.(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).ResourceType.Fields,
-			nft.(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).Fields)
+		fields := nft.(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).ResourceType.Fields
+		values := nft.(cadence.Optional).Value.(cadence.Optional).Value.(cadence.Resource).Fields
+		nft_struct := convertCadenceCompositeToMap(fields, values)
 
 		nft_array = append(nft_array, nft_struct)
 
