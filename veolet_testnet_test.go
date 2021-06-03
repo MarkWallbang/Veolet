@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"strings"
@@ -111,6 +112,7 @@ func createAccountTestnet(t *testing.T, config Configuration) testaccount {
 	var address flow.Address
 	for {
 		result, err := c.GetTransactionResult(ctx, tx.ID())
+		fmt.Println(result.Error)
 		if err != nil {
 			t.Error("Failed to get transaction result")
 		}
@@ -119,6 +121,8 @@ func createAccountTestnet(t *testing.T, config Configuration) testaccount {
 				if event.Type == flow.EventAccountCreated {
 					accountCreatedEvent := flow.AccountCreatedEvent(event)
 					address = accountCreatedEvent.Address()
+					t.Log("Address: ", address)
+					t.Log("AddressHex: ", address.Hex())
 				}
 			}
 			break
