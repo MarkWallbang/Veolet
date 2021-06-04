@@ -2,6 +2,13 @@
 
 ## Install & Import
 
+install with:
+```
+go get github.com/markwallbang/veolet
+
+```
+
+
 import as:
 
 ```
