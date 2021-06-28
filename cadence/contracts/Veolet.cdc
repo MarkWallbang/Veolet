@@ -8,17 +8,29 @@ pub contract Veolet: NonFungibleToken {
     pub event Deposit(id: UInt64, to: Address?)
 
     pub resource NFT: NonFungibleToken.INFT {
+        // Token ID
         pub let id: UInt64
+        // URL to the media file represented by the NFT 
         pub let originalMediaURL: String
+        // Flow address of the NFT creator
         pub let creatorAddress: Address
+        // Name of the NFT creator
         pub let creatorName: String
+        // Date of creation
         pub let createdDate: UInt64
+        // Short description of the NFT
         pub let caption: String
+        // SHA256 hash of the media file for verification
         pub let hash: String
+        // How many NFTs with this hash (e.g. same media file) are minted
         pub let edition: UInt16
 
+        // A mutable version of the media URL. The holder can change the URL in case the original URL is not available anymore. Through the hash variable it can be
+        // verified whether the file is actually the correct one. 
         pub(set) var currentMediaURL: String
 
+
+        // initializer of the token
         init(initID: UInt64,initMediaURL: String, initCreatorName: String, initCreatorAddress: Address, initCreatedDate: UInt64, initCaption: String, initHash: String, initEdition: UInt16) {
             self.id = initID
             self.originalMediaURL = initMediaURL
@@ -29,9 +41,12 @@ pub contract Veolet: NonFungibleToken {
             self.hash = initHash
             self.edition = initEdition
 
+            // the mutable URL variable is also set to the originalMediaURL value initially
             self.currentMediaURL = initMediaURL
         }
     }
+
+    // Interface to receive NFT references and deposit NFT (implemented by collection)
     pub resource interface VeoletGetter {
         pub fun deposit(token: @NonFungibleToken.NFT)
         pub fun getIDs(): [UInt64]
@@ -50,6 +65,7 @@ pub contract Veolet: NonFungibleToken {
         // NFT is a resource type with an `UInt64` ID field
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
 
+        // Initializer
         init () {
             self.ownedNFTs <- {}
         }
@@ -98,6 +114,7 @@ pub contract Veolet: NonFungibleToken {
             return &self.ownedNFTs[id] as &NonFungibleToken.NFT
         }
 
+        // Takes a NFT id as input and returns a reference to the token. Used to obtain token fields
        pub fun borrowVeoletRef(id: UInt64): &Veolet.NFT? {
             if self.ownedNFTs[id] != nil {
                 let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT

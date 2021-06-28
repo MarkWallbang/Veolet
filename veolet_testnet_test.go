@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"strings"
@@ -112,7 +111,6 @@ func createAccountTestnet(t *testing.T, config Configuration) testaccount {
 	var address flow.Address
 	for {
 		result, err := c.GetTransactionResult(ctx, tx.ID())
-		fmt.Println(result.Error)
 		if err != nil {
 			t.Error("Failed to get transaction result")
 		}
@@ -331,10 +329,13 @@ func transferTokenTestnet(t *testing.T, config Configuration, sender testaccount
 	tx.AddArgument(cadence.NewUInt64(tokenID))            // Add tokenID argument
 
 	// Sender signs payload (authorizer/proposer)
-	err = tx.SignPayload(senderAccount.Address, senderAccount.Keys[0].Index, sender.Signer)
-	if err != nil {
-		t.Error("Could not sign payload")
+	if serviceAccount.Address.Hex() != senderAccount.Address.Hex() {
+		err = tx.SignPayload(senderAccount.Address, senderAccount.Keys[0].Index, sender.Signer)
+		if err != nil {
+			t.Error("Could not sign payload")
+		}
 	}
+
 	// Service account signs envelope as payer
 	err = tx.SignEnvelope(serviceAccount.Address, serviceAccount.Key.Index, serviceAccount.Signer)
 	if err != nil {
@@ -465,9 +466,11 @@ func setMediaURLTestnet(t *testing.T, config Configuration, target testaccount, 
 	tx.AddArgument(cadence.NewUInt64(tokenID)) // Add tokenID argument
 
 	// Sender signs payload (authorizer/proposer)
-	err = tx.SignPayload(target.Address, target.Key.Index, target.Signer)
-	if err != nil {
-		t.Error("Could not sign payload")
+	if serviceAccount.Address.Hex() != target.Address.Hex() {
+		err = tx.SignPayload(target.Address, target.Key.Index, target.Signer)
+		if err != nil {
+			t.Error("Could not sign payload")
+		}
 	}
 	// Service account signs envelope as payer
 	err = tx.SignEnvelope(serviceAccount.Address, serviceAccount.Key.Index, serviceAccount.Signer)

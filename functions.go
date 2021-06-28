@@ -477,10 +477,13 @@ func SendTransaction(config Configuration, proposer Account, transactioncode []b
 		}
 	}
 
-	err = tx.SignPayload(proposer.Address, accountKey.Index, signer)
-	if err != nil {
-		fmt.Println("err:", err.Error())
-		panic(err)
+	// Check if proposer is the service account. If thats the case, only the envelope is to be signed.
+	if serviceAddress.Hex() != proposer.Address.Hex() {
+		err = tx.SignPayload(proposer.Address, accountKey.Index, signer)
+		if err != nil {
+			fmt.Println("err:", err.Error())
+			panic(err)
+		}
 	}
 
 	err = tx.SignEnvelope(serviceAddress, serviceKey.Index, serviceSigner)

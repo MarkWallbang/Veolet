@@ -42,5 +42,17 @@
    {
       "address": "d0ded7e99e477f27",
       "privkey": "94af99d3484622de693573e581b5a9bf2838a6631257c299b9f5ef32c461c555"
+   },
+   {
+      "address": "539b3073b13f6f24",
+      "privkey": "e6c38a1b340e2bfcaf901ca05e74c6a73f974145226d50c8828b669e230b2bd9"
+   },
+   {
+      "address": "405a4c0cce7a37df",
+      "privkey": "e27ffd30f34a218d7bd414fbecc64e22372cc953d9335320bf3753974a20509b"
+   },
+   {
+      "address": "a43df5d1df803700",
+      "privkey": "6eee054f24c26ac3fe4c2cc43301eb2cb80a1b0e562c10332c81aef39166e167"
    }
 ]
